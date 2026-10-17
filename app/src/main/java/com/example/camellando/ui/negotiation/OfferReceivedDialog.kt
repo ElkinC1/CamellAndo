@@ -1,4 +1,4 @@
-﻿package com.example.camellando.ui.negotiation
+package com.example.camellando.ui.negotiation
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 fun OfferReceivedDialog(onDismiss: () -> Unit = {}) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("10. Oferta Recibida") },
+        title = { Text("Interfaz 10: Modal Oferta Recibida") },
         text = { Text("Modal para aceptar o contraofertar.") },
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("Aceptar") }

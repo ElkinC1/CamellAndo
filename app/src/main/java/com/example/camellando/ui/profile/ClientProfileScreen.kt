@@ -1,4 +1,4 @@
-﻿package com.example.camellando.ui.profile
+package com.example.camellando.ui.profile
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +10,6 @@ import androidx.compose.ui.Modifier
 @Composable
 fun ClientProfileScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "8. Perfil Contratante (ClientProfileScreen)")
+        Text(text = "Interfaz 12: Perfil del Usuario Contratador (ClientProfileScreen)")
     }
 }

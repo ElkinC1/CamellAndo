@@ -1,4 +1,4 @@
-﻿package com.example.camellando.ui.negotiation
+package com.example.camellando.ui.negotiation
 
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 fun CounterOfferDialog(onDismiss: () -> Unit = {}) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("11. Contraoferta de Servicio") },
+        title = { Text("Interfaz 11: Modal Contraoferta de Servicio") },
         text = { Text("Modal para proponer nuevo precio o condiciones.") },
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("Enviar") }

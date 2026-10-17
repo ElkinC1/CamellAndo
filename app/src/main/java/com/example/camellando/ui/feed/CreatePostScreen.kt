@@ -1,4 +1,4 @@
-﻿package com.example.camellando.ui.feed
+package com.example.camellando.ui.feed
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +10,6 @@ import androidx.compose.ui.Modifier
 @Composable
 fun CreatePostScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "5. Crear Publicación (CreatePostScreen)")
+        Text(text = "Interfaz 7: Crear Publicación (CreatePostScreen)")
     }
 }

@@ -1,4 +1,4 @@
-﻿package com.example.camellando.ui.chat
+package com.example.camellando.ui.chat
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +10,6 @@ import androidx.compose.ui.Modifier
 @Composable
 fun ChatScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Chat Directo (ChatScreen)")
+        Text(text = "Interfaz 13: Chat / Mensajería Directa (ChatScreen)")
     }
 }

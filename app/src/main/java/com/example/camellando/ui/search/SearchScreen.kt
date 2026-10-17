@@ -1,4 +1,4 @@
-﻿package com.example.camellando.ui.search
+package com.example.camellando.ui.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +10,6 @@ import androidx.compose.ui.Modifier
 @Composable
 fun SearchScreen(modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "6. Búsqueda con filtros (SearchScreen)")
+        Text(text = "Interfaz 8: Búsqueda y Filtros de Servicios (SearchScreen)")
     }
 }
