@@ -22,7 +22,9 @@ fun AppNavigation() {
                     navController.navigate(Screen.Register.route)
                 },
                 onLoginSuccess = {
-                    navController.navigate(Screen.Home.route) {
+                    //cuando este la pantalla de inicio cambiar esta linea
+                    //navController.navigate(Screen.Home.route)
+                    navController.navigate(Screen.ProviderProfile.route) {
                         popUpTo(Screen.Login.route) {
                             inclusive = true
                         }
