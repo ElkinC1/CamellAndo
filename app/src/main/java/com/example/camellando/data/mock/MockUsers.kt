@@ -11,7 +11,7 @@ val mockAccounts = listOf(
     MockAccount(
         user = User(
             id = "user_001",
-            name = "Antonio Martinez",
+            name = "antonio Martinez",
             email = "Antonio@camellando.com",
             role = "client"
         ),
