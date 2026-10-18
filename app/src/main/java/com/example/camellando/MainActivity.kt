@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.MaterialTheme
 import com.example.camellando.ui.navigation.AppNavigation
 import com.example.camellando.ui.feed.HomeScreen
+import com.example.camellando.ui.negotiation.AgreementReachedDialog
 import com.example.camellando.ui.negotiation.OfferReceivedDialog
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +14,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                OfferReceivedDialog()
+                AgreementReachedDialog ()
             }
         }
     }
