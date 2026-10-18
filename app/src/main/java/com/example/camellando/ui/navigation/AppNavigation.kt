@@ -32,7 +32,21 @@ fun AppNavigation() {
             )
         }
         composable(Screen.Register.route) { RegisterScreen() }
-        composable(Screen.ServiceProfileSetup.route) { ServiceProfileSetupScreen() }
+        composable(Screen.ServiceProfileSetup.route) {
+            ServiceProfileSetupScreen(
+                onBackClick = {
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.Register.route)
+                    }
+                },
+                onRegistrarClick = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Login.route) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
         composable(Screen.CreateOffer.route) { CreateOfferDialog() }
         composable(Screen.ProviderProfile.route) { ProviderProfileScreen() }
         composable(Screen.Home.route) { HomeScreen() }
