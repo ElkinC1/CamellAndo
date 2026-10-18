@@ -1,131 +1,126 @@
 package com.example.camellando.ui.navigation
 
-import androidx.compose.runtime.*
-import androidx.navigation.NavHostController
+import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.camellando.ui.auth.LoginScreen // O tu componente de Iniciar Sesión
-import com.example.camellando.ui.auth.RegisterScreen
-import com.example.camellando.ui.auth.ServiceProfileSetupScreen
-import com.example.camellando.ui.feed.HomeScreen
-import com.example.camellando.ui.negotiation.AgreementReachedDialog
-import com.example.camellando.ui.negotiation.OfferReceivedDialog
+import com.example.camellando.ui.auth.*
+import com.example.camellando.ui.chat.*
+import com.example.camellando.ui.feed.*
+import com.example.camellando.ui.negotiation.*
+import com.example.camellando.ui.profile.*
+import com.example.camellando.ui.search.*
 
 @Composable
-fun AppNavigation(
-    navController: NavHostController = rememberNavController(),
-    // 1. EL DESTINO INICIAL AHORA ES LOGIN
-    startDestination: String = Screen.Login.route
-) {
-    var showOfferReceivedDialog by remember { mutableStateOf(false) }
-    var showAgreementReachedDialog by remember { mutableStateOf(false) }
+fun AppNavigation() {
+    val navController = rememberNavController()
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = Screen.Login.route
     ) {
-        // PANTALLA 1: INICIAR SESIÓN (Pantalla Inicial)
         composable(Screen.Login.route) {
-            // Reemplaza LoginScreen con el nombre exacto de la función composable de tu Login
             LoginScreen(
-                onLoginSuccess = {
-                    // Al iniciar sesión exitosamente, se navega al Home y se elimina Login del historial
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
-                    }
-                },
                 onNavigateToRegister = {
                     navController.navigate(Screen.Register.route)
-                }
-            )
-        }
-
-        // PANTALLA 2: REGISTRO
-        // PANTALLA: REGISTRO
-        composable(Screen.Register.route) {
-            RegisterScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToLogin = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Register.route) { inclusive = true }
-                    }
                 },
-                onRegisterClientSuccess = { mensaje ->
-                    // Al registrarse como cliente, redirige al Login limpiando el registro
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Register.route) { inclusive = true }
-                    }
-                },
-                onRegisterProviderSuccess = {
-                    // Redirige a la pantalla para configurar el perfil de prestador de servicios
-                    navController.navigate(Screen.ServiceProfileSetup.route)
-                }
-            )
-        }
-
-        // PANTALLA: CONFIGURACIÓN DE PERFIL DE PRESTADOR DE SERVICIOS
-        composable(Screen.ServiceProfileSetup.route) {
-            ServiceProfileSetupScreen(
-                onBackClick = {
-                    if (!navController.popBackStack()) {
-                        navController.navigate(Screen.Register.route)
-                    }
-                },
-                onRegistrarClick = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Login.route) { inclusive = false }
+                onLoginSuccess = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) {
+                            inclusive = true
+                        }
                         launchSingleTop = true
                     }
                 }
             )
         }
 
-        // PANTALLA 3: HOME / FEED
+        composable(Screen.Register.route) {
+            RegisterScreen()
+        }
+
+        composable(Screen.ServiceProfileSetup.route) {
+            ServiceProfileSetupScreen()
+        }
+
+        composable(Screen.CreateOffer.route) {
+            CreateOfferDialog()
+        }
+
+        composable(Screen.ProviderProfile.route) {
+            ProviderProfileScreen()
+        }
+
         composable(Screen.Home.route) {
             HomeScreen(
                 onNavigateToCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
                 },
-                onNavigateToDetail = { servicioId ->
-                    showOfferReceivedDialog = true
+                onNavigateToDetail = { _ ->
+                    navController.navigate(Screen.ProviderDetail.route)
                 },
-                onNavigateBottomTab = { targetScreen ->
-                    if (targetScreen.route != Screen.Home.route) {
-                        navController.navigate(targetScreen.route) {
-                            popUpTo(Screen.Home.route) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+                onNavigateToSearch = {
+                    navController.navigate(Screen.Search.route)
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.ClientProfile.route)
                 }
             )
+        }
 
-            // Modales de negociación sobre el Home
-            if (showOfferReceivedDialog) {
-                OfferReceivedDialog(
-                    onDismiss = { showOfferReceivedDialog = false },
-                    onAceptarOferta = {
-                        showOfferReceivedDialog = false
-                        showAgreementReachedDialog = true
-                    },
-                    onContraoferta = {
-                        showOfferReceivedDialog = false
-                        navController.navigate(Screen.CounterOffer.route)
-                    },
-                    onRechazarOferta = {
-                        showOfferReceivedDialog = false
-                    }
-                )
-            }
+        composable(Screen.CreatePost.route) {
+            CreatePostScreen()
+        }
 
-            if (showAgreementReachedDialog) {
-                AgreementReachedDialog(
-                    onDismiss = { showAgreementReachedDialog = false },
-                    onReadyClicked = { showAgreementReachedDialog = false },
-                    onViewDetailsClicked = { showAgreementReachedDialog = false }
-                )
-            }
+        composable(Screen.Search.route) {
+            SearchScreen(
+                onNavigateHome = {
+                    navController.navigate(Screen.Home.route)
+                },
+                onNavigateMessages = {
+                    navController.navigate(Screen.Chat.route)
+                },
+                onNavigateProfile = {
+                    navController.navigate(Screen.ClientProfile.route)
+                },
+                onNavigateMenu = {
+                    navController.navigate(Screen.ClientProfile.route)
+                },
+                onProviderClick = {
+                    navController.navigate(Screen.ProviderDetail.route)
+                }
+            )
+        }
+
+        composable(Screen.ProviderDetail.route) {
+            ProviderDetailScreen()
+        }
+
+        composable(Screen.OfferReceived.route) {
+            OfferReceivedDialog()
+        }
+
+        composable(Screen.CounterOffer.route) {
+            CounterOfferDialog()
+        }
+
+        composable(Screen.ClientProfile.route) {
+            ClientProfileScreen(
+                onBack = {
+                    navController.popBackStack()
+                },
+                onViewDetail = {
+                    navController.navigate(Screen.ProviderDetail.route)
+                }
+            )
+        }
+
+        composable(Screen.Chat.route) {
+            ChatScreen()
+        }
+
+        composable(Screen.AgreementReached.route) {
+            AgreementReachedDialog()
         }
     }
 }

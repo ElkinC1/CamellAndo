@@ -1,7 +1,9 @@
+
 package com.example.camellando.ui.feed
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -12,7 +14,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.QuestionAnswer
@@ -32,8 +37,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.camellando.R
-import com.example.camellando.ui.components.BottomNavigationBar
-import com.example.camellando.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,9 +44,11 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
     onNavigateToCreatePost: () -> Unit = {},
     onNavigateToDetail: (String) -> Unit = {},
-    onNavigateBottomTab: (Screen) -> Unit = {}
+    onNavigateToSearch: () -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     HomeContent(
         uiState = uiState,
         onPestañaSelected = viewModel::onPestañaSelected,
@@ -51,7 +56,8 @@ fun HomeScreen(
         onToggleGuardar = viewModel::toggleGuardarServicio,
         onNavigateToCreatePost = onNavigateToCreatePost,
         onNavigateToDetail = onNavigateToDetail,
-        onNavigateBottomTab = onNavigateBottomTab
+        onNavigateToSearch = onNavigateToSearch,
+        onNavigateToProfile = onNavigateToProfile
     )
 }
 
@@ -64,14 +70,29 @@ private fun HomeContent(
     onToggleGuardar: (String) -> Unit,
     onNavigateToCreatePost: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
-    onNavigateBottomTab: (Screen) -> Unit
+    onNavigateToSearch: () -> Unit,
+    onNavigateToProfile: () -> Unit
 ) {
     val primaryBlue = Color(0xFF1E60F9)
+    var selectedBottomTab by remember { mutableIntStateOf(0) }
 
-    val publicacionesFiltradas = remember(uiState.pestañaSeleccionada, uiState.categoriaSeleccionada, uiState.publicaciones) {
+    // Filtrar publicaciones según pestaña y categoría seleccionada.
+    val publicacionesFiltradas = remember(
+        uiState.pestañaSeleccionada,
+        uiState.categoriaSeleccionada,
+        uiState.publicaciones
+    ) {
         uiState.publicaciones.filter { servicio ->
-            val coincideGuardado = if (uiState.pestañaSeleccionada == 1) servicio.esGuardado else true
-            val coincideCategoria = uiState.categoriaSeleccionada == "Todos" || servicio.categoria.equals(uiState.categoriaSeleccionada, ignoreCase = true)
+            val coincideGuardado =
+                if (uiState.pestañaSeleccionada == 1) servicio.esGuardado else true
+
+            val coincideCategoria =
+                uiState.categoriaSeleccionada == "Todos" ||
+                        servicio.categoria.equals(
+                            uiState.categoriaSeleccionada,
+                            ignoreCase = true
+                        )
+
             coincideGuardado && coincideCategoria
         }
     }
@@ -88,10 +109,17 @@ private fun HomeContent(
                                 modifier = Modifier.size(32.dp)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text("C", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                    Text(
+                                        "C",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp
+                                    )
                                 }
                             }
+
                             Spacer(modifier = Modifier.width(10.dp))
+
                             Text(
                                 text = "CamellAndo",
                                 fontSize = 20.sp,
@@ -101,13 +129,20 @@ private fun HomeContent(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Notificaciones */ }) {
-                            Icon(Icons.Outlined.QuestionAnswer, contentDescription = null, tint = primaryBlue)
+                        IconButton(onClick = { /* Notificaciones/Mensajes */ }) {
+                            Icon(
+                                Icons.Outlined.QuestionAnswer,
+                                contentDescription = null,
+                                tint = primaryBlue
+                            )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.White
+                    )
                 )
 
+                // Tabs superiores: Para ti y Mis Guardados.
                 TabRow(
                     selectedTabIndex = uiState.pestañaSeleccionada,
                     containerColor = Color.White,
@@ -120,24 +155,30 @@ private fun HomeContent(
                         text = {
                             Text(
                                 "Para ti",
-                                fontWeight = if (uiState.pestañaSeleccionada == 0) FontWeight.Bold else FontWeight.Normal,
-                                color = if (uiState.pestañaSeleccionada == 0) primaryBlue else Color(0xFF94A3B8)
+                                fontWeight = if (uiState.pestañaSeleccionada == 0)
+                                    FontWeight.Bold else FontWeight.Normal,
+                                color = if (uiState.pestañaSeleccionada == 0)
+                                    primaryBlue else Color(0xFF94A3B8)
                             )
                         }
                     )
+
                     Tab(
                         selected = uiState.pestañaSeleccionada == 1,
                         onClick = { onPestañaSelected(1) },
                         text = {
                             Text(
                                 "Mis Guardados",
-                                fontWeight = if (uiState.pestañaSeleccionada == 1) FontWeight.Bold else FontWeight.Normal,
-                                color = if (uiState.pestañaSeleccionada == 1) primaryBlue else Color(0xFF94A3B8)
+                                fontWeight = if (uiState.pestañaSeleccionada == 1)
+                                    FontWeight.Bold else FontWeight.Normal,
+                                color = if (uiState.pestañaSeleccionada == 1)
+                                    primaryBlue else Color(0xFF94A3B8)
                             )
                         }
                     )
                 }
 
+                // Filtros de categorías horizontales.
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -145,7 +186,9 @@ private fun HomeContent(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(uiState.listaCategorias) { categoria ->
-                        val isSelected = categoria == uiState.categoriaSeleccionada
+                        val isSelected =
+                            categoria == uiState.categoriaSeleccionada
+
                         FilterChip(
                             selected = isSelected,
                             onClick = { onCategoriaSelected(categoria) },
@@ -162,10 +205,98 @@ private fun HomeContent(
             }
         },
         bottomBar = {
-            BottomNavigationBar(
-                currentRoute = Screen.Home.route,
-                onNavigate = onNavigateBottomTab
-            )
+            NavigationBar(
+                containerColor = Color.White,
+                tonalElevation = 8.dp
+            ) {
+                NavigationBarItem(
+                    selected = selectedBottomTab == 0,
+                    onClick = { selectedBottomTab = 0 },
+                    icon = {
+                        Icon(
+                            Icons.Default.Home,
+                            contentDescription = "Inicio"
+                        )
+                    },
+                    label = { Text("Inicio", fontSize = 11.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = primaryBlue,
+                        selectedTextColor = primaryBlue
+                    )
+                )
+
+                NavigationBarItem(
+                    selected = selectedBottomTab == 1,
+                    onClick = { selectedBottomTab = 1 },
+                    icon = {
+                        Icon(
+                            Icons.Outlined.ChatBubbleOutline,
+                            contentDescription = "Mensajes"
+                        )
+                    },
+                    label = { Text("Mensajes", fontSize = 11.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = primaryBlue,
+                        selectedTextColor = primaryBlue
+                    )
+                )
+
+                // CAMBIO: navegar a la pantalla Buscar.
+                NavigationBarItem(
+                    selected = selectedBottomTab == 2,
+                    onClick = {
+                        selectedBottomTab = 2
+                        onNavigateToSearch()
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Search,
+                            contentDescription = "Buscar"
+                        )
+                    },
+                    label = { Text("Buscar", fontSize = 11.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = primaryBlue,
+                        selectedTextColor = primaryBlue
+                    )
+                )
+
+                // CAMBIO: navegar a la pantalla Perfil.
+                NavigationBarItem(
+                    selected = selectedBottomTab == 3,
+                    onClick = {
+                        selectedBottomTab = 3
+                        onNavigateToProfile()
+                    },
+                    icon = {
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = "Perfil"
+                        )
+                    },
+                    label = { Text("Perfil", fontSize = 11.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = primaryBlue,
+                        selectedTextColor = primaryBlue
+                    )
+                )
+
+                NavigationBarItem(
+                    selected = selectedBottomTab == 4,
+                    onClick = { selectedBottomTab = 4 },
+                    icon = {
+                        Icon(
+                            Icons.Default.Menu,
+                            contentDescription = "Menú"
+                        )
+                    },
+                    label = { Text("Menú", fontSize = 11.sp) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = primaryBlue,
+                        selectedTextColor = primaryBlue
+                    )
+                )
+            }
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -174,7 +305,11 @@ private fun HomeContent(
                 contentColor = Color.White,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Crear publicación", modifier = Modifier.size(28.dp))
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Crear publicación",
+                    modifier = Modifier.size(28.dp)
+                )
             }
         },
         containerColor = Color(0xFFF8FAFC)
@@ -196,7 +331,11 @@ private fun HomeContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (uiState.pestañaSeleccionada == 1) "No tienes publicaciones guardadas aún." else "No hay servicios disponibles en esta categoría.",
+                            text = if (uiState.pestañaSeleccionada == 1) {
+                                "No tienes publicaciones guardadas aún."
+                            } else {
+                                "No hay servicios disponibles en esta categoría."
+                            },
                             fontSize = 14.sp,
                             color = Color(0xFF64748B)
                         )
@@ -207,7 +346,9 @@ private fun HomeContent(
                     TarjetaServicioFeed(
                         servicio = servicio,
                         onClick = { onNavigateToDetail(servicio.id) },
-                        onToggleGuardar = { onToggleGuardar(servicio.id) }
+                        onToggleGuardar = {
+                            onToggleGuardar(servicio.id)
+                        }
                     )
                 }
             }
@@ -230,6 +371,7 @@ private fun TarjetaServicioFeed(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Encabezado de la publicación.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -241,17 +383,21 @@ private fun TarjetaServicioFeed(
                         color = Color(0xFFCBD5E1)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Person,
+                            Icons.Default.Person,
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.padding(8.dp)
                         )
                     }
+
                     if (servicio.estaDisponibleHoy) {
                         Box(
                             modifier = Modifier
                                 .size(12.dp)
-                                .background(Color(0xFF10B981), CircleShape)
+                                .background(
+                                    Color(0xFF10B981),
+                                    CircleShape
+                                )
                                 .align(Alignment.BottomEnd)
                         )
                     }
@@ -268,7 +414,18 @@ private fun TarjetaServicioFeed(
                             color = Color(0xFF0F172A)
                         )
 
+                        if (servicio.esVerificado) {
+                            Spacer(modifier = Modifier.width(4.dp))
+
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Verificado",
+                                tint = primaryBlue,
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
                     }
+
                     Text(
                         text = servicio.profesion,
                         fontSize = 12.sp,
@@ -276,6 +433,7 @@ private fun TarjetaServicioFeed(
                     )
                 }
 
+                // Categoría y botón Guardar.
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
                         color = Color(0xFFEFF6FF),
@@ -286,15 +444,26 @@ private fun TarjetaServicioFeed(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = primaryBlue,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(
+                                horizontal = 8.dp,
+                                vertical = 4.dp
+                            )
                         )
                     }
 
                     IconButton(onClick = onToggleGuardar) {
                         Icon(
-                            imageVector = if (servicio.esGuardado) Icons.Default.Bookmark else Icons.Outlined.BookmarkBorder,
+                            imageVector = if (servicio.esGuardado) {
+                                Icons.Default.Bookmark
+                            } else {
+                                Icons.Outlined.BookmarkBorder
+                            },
                             contentDescription = "Guardar",
-                            tint = if (servicio.esGuardado) primaryBlue else Color(0xFF94A3B8),
+                            tint = if (servicio.esGuardado) {
+                                primaryBlue
+                            } else {
+                                Color(0xFF94A3B8)
+                            },
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -303,6 +472,7 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(10.dp))
 
+            // Precio o tarifa destacada.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -313,6 +483,7 @@ private fun TarjetaServicioFeed(
                     fontSize = 12.sp,
                     color = Color(0xFF64748B)
                 )
+
                 Text(
                     text = servicio.precio,
                     fontSize = 16.sp,
@@ -332,6 +503,7 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Imagen de la publicación.
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -341,13 +513,16 @@ private fun TarjetaServicioFeed(
             ) {
                 if (servicio.imagenResId != null) {
                     Image(
-                        painter = painterResource(id = servicio.imagenResId),
+                        painter = painterResource(
+                            id = servicio.imagenResId
+                        ),
                         contentDescription = "Imagen del trabajo",
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                 }
 
+                // Contador de fotos.
                 Surface(
                     color = Color.Black.copy(alpha = 0.6f),
                     shape = RoundedCornerShape(6.dp),
@@ -359,7 +534,10 @@ private fun TarjetaServicioFeed(
                         text = "📷 ${servicio.cantidadFotos}",
                         color = Color.White,
                         fontSize = 11.sp,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        modifier = Modifier.padding(
+                            horizontal = 8.dp,
+                            vertical = 3.dp
+                        )
                     )
                 }
             }
@@ -375,21 +553,44 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Reacciones y disponibilidad.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.ThumbUp, contentDescription = null, tint = Color(0xFF94A3B8), modifier = Modifier.size(16.dp))
+                    Icon(
+                        Icons.Outlined.ThumbUp,
+                        contentDescription = null,
+                        tint = Color(0xFF94A3B8),
+                        modifier = Modifier.size(16.dp)
+                    )
+
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(servicio.likes.toString(), fontSize = 12.sp, color = Color(0xFF64748B))
+
+                    Text(
+                        servicio.likes.toString(),
+                        fontSize = 12.sp,
+                        color = Color(0xFF64748B)
+                    )
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Icon(Icons.Outlined.ChatBubbleOutline, contentDescription = null, tint = Color(0xFF94A3B8), modifier = Modifier.size(16.dp))
+                    Icon(
+                        Icons.Outlined.ChatBubbleOutline,
+                        contentDescription = null,
+                        tint = Color(0xFF94A3B8),
+                        modifier = Modifier.size(16.dp)
+                    )
+
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(servicio.comentarios.toString(), fontSize = 12.sp, color = Color(0xFF64748B))
+
+                    Text(
+                        servicio.comentarios.toString(),
+                        fontSize = 12.sp,
+                        color = Color(0xFF64748B)
+                    )
                 }
 
                 if (servicio.estaDisponibleHoy) {
@@ -402,7 +603,10 @@ private fun TarjetaServicioFeed(
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF059669),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(
+                                horizontal = 8.dp,
+                                vertical = 4.dp
+                            )
                         )
                     }
                 }
@@ -410,18 +614,31 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(14.dp))
 
+            // Botón principal.
             Button(
                 onClick = onClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = primaryBlue)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = primaryBlue
+                )
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Outlined.QuestionAnswer, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Icon(
+                        Icons.Outlined.QuestionAnswer,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Contactar y Cotizar", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+
+                    Text(
+                        "Contactar y Cotizar",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -431,15 +648,37 @@ private fun TarjetaServicioFeed(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun HomeScreenPreview() {
+    val sampleState = HomeUiState(
+        publicaciones = listOf(
+            ServicioModel(
+                id = "1",
+                nombreProveedor = "Juan Álvarez",
+                profesion = "Electricista Matriculado",
+                esVerificado = true,
+                tiempoPublicacion = "Hace 2 h",
+                categoria = "Electricidad",
+                precio = "$35.00 / hora",
+                tituloDescripcion = "Instalación completa de luminarias LED y readecuación del tablero eléctrico principal.",
+                descripcionDetallada = "Materiales ignífugos de primera calidad. Pruebas de carga completadas con éxito.",
+                imagenResId = null,
+                cantidadFotos = "1/4",
+                likes = 38,
+                comentarios = 12,
+                estaDisponibleHoy = true
+            )
+        )
+    )
+
     MaterialTheme {
         HomeContent(
-            uiState = HomeUiState(),
+            uiState = sampleState,
             onPestañaSelected = {},
             onCategoriaSelected = {},
             onToggleGuardar = {},
             onNavigateToCreatePost = {},
             onNavigateToDetail = {},
-            onNavigateBottomTab = {}
+            onNavigateToSearch = {},
+            onNavigateToProfile = {}
         )
     }
 }
