@@ -22,9 +22,7 @@ fun AppNavigation() {
                     navController.navigate(Screen.Register.route)
                 },
                 onLoginSuccess = {
-                    //cuando este la pantalla de inicio cambiar esta linea
-                    //navController.navigate(Screen.Home.route)
-                    navController.navigate(Screen.ProviderProfile.route) {
+                    navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Login.route) {
                             inclusive = true
                         }
@@ -37,7 +35,19 @@ fun AppNavigation() {
         composable(Screen.ServiceProfileSetup.route) { ServiceProfileSetupScreen() }
         composable(Screen.CreateOffer.route) { CreateOfferDialog() }
         composable(Screen.ProviderProfile.route) { ProviderProfileScreen() }
-        composable(Screen.Home.route) { HomeScreen() }
+        composable(Screen.Home.route) {
+            HomeScreen(
+                onNavigateToDetail = { postId ->
+                    navController.navigate(Screen.ProviderDetail.route)
+                },
+                onNavigateToProviderProfile = {
+                    navController.navigate(Screen.ProviderProfile.route)
+                },
+                onNavigateToCreatePost = {
+                    navController.navigate(Screen.CreatePost.route)
+                }
+            )
+        }
         composable(Screen.CreatePost.route) { CreatePostScreen() }
         composable(Screen.Search.route) { SearchScreen() }
         composable(Screen.ProviderDetail.route) { ProviderDetailScreen() }

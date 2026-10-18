@@ -42,7 +42,8 @@ import com.example.camellando.R
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
     onNavigateToCreatePost: () -> Unit = {},
-    onNavigateToDetail: (String) -> Unit = {}
+    onNavigateToDetail: (String) -> Unit = {},
+    onNavigateToProviderProfile: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeContent(
@@ -51,7 +52,8 @@ fun HomeScreen(
         onCategoriaSelected = viewModel::onCategoriaSelected,
         onToggleGuardar = viewModel::toggleGuardarServicio,
         onNavigateToCreatePost = onNavigateToCreatePost,
-        onNavigateToDetail = onNavigateToDetail
+        onNavigateToDetail = onNavigateToDetail,
+        onNavigateToProviderProfile = onNavigateToProviderProfile
     )
 }
 
@@ -63,7 +65,8 @@ private fun HomeContent(
     onCategoriaSelected: (String) -> Unit,
     onToggleGuardar: (String) -> Unit,
     onNavigateToCreatePost: () -> Unit,
-    onNavigateToDetail: (String) -> Unit
+    onNavigateToDetail: (String) -> Unit,
+    onNavigateToProviderProfile: () -> Unit
 ) {
     val primaryBlue = Color(0xFF1E60F9)
     var selectedBottomTab by remember { mutableIntStateOf(0) }
@@ -246,7 +249,8 @@ private fun HomeContent(
                     TarjetaServicioFeed(
                         servicio = servicio,
                         onClick = { onNavigateToDetail(servicio.id) },
-                        onToggleGuardar = { onToggleGuardar(servicio.id) }
+                        onToggleGuardar = { onToggleGuardar(servicio.id) },
+                        onNavigateToProviderProfile = onNavigateToProviderProfile
                     )
                 }
             }
@@ -258,7 +262,8 @@ private fun HomeContent(
 private fun TarjetaServicioFeed(
     servicio: ServicioModel,
     onClick: () -> Unit,
-    onToggleGuardar: () -> Unit
+    onToggleGuardar: () -> Unit,
+    onNavigateToProviderProfile: () -> Unit
 ) {
     val primaryBlue = Color(0xFF1E60F9)
 
@@ -271,7 +276,14 @@ private fun TarjetaServicioFeed(
         Column(modifier = Modifier.padding(16.dp)) {
             // Header del post: Avatar + Proveedor + Opción Guardar Usuario/Publicación
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        // Validación con mocks: Solo funciona si es Juan Álvarez
+                        if (servicio.nombreProveedor.equals("Juan Álvarez", ignoreCase = true)) {
+                            onNavigateToProviderProfile()
+                        }
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box {
@@ -514,7 +526,8 @@ private fun HomeScreenPreview() {
             onCategoriaSelected = {},
             onToggleGuardar = {},
             onNavigateToCreatePost = {},
-            onNavigateToDetail = {}
+            onNavigateToDetail = {},
+            onNavigateToProviderProfile = {}
         )
     }
 }
