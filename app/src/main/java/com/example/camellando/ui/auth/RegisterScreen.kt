@@ -1,6 +1,8 @@
 package com.example.camellando.ui.auth
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,6 +37,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+
 
 // Lista estática de los 22 cantones de Manabí dentro del mismo archivo
 private val cantonesManabi = listOf(
@@ -45,7 +49,6 @@ private val cantonesManabi = listOf(
     "Sucre (Bahía de Caráquez)", "Tosagua"
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel = viewModel(),
@@ -55,9 +58,45 @@ fun RegisterScreen(
     onNavigateToLogin: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    RegisterContent(
+        uiState = uiState,
+        onNombreChanged = viewModel::onNombreChanged,
+        onApellidoChanged = viewModel::onApellidoChanged,
+        onCantonChanged = viewModel::onCantonChanged,
+        onNacimientoChanged = viewModel::onNacimientoChanged,
+        onIdentificacionChanged = viewModel::onIdentificacionChanged,
+        onTipoIdentificacionChanged = viewModel::onTipoIdentificacionChanged,
+        onCorreoChanged = viewModel::onCorreoChanged,
+        onContrasenaChanged = viewModel::onContrasenaChanged,
+        onRepetirContrasenaChanged = viewModel::onRepetirContrasenaChanged,
+        onNavigateBack = onNavigateBack,
+        onRegisterAsClient = onRegisterAsClient,
+        onRegisterAsProvider = onRegisterAsProvider,
+        onNavigateToLogin = onNavigateToLogin
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RegisterContent(
+    uiState: RegisterUiState,
+    onNombreChanged: (String) -> Unit,
+    onApellidoChanged: (String) -> Unit,
+    onCantonChanged: (String) -> Unit,
+    onNacimientoChanged: (String) -> Unit,
+    onIdentificacionChanged: (String) -> Unit,
+    onTipoIdentificacionChanged: (String) -> Unit,
+    onCorreoChanged: (String) -> Unit,
+    onContrasenaChanged: (String) -> Unit,
+    onRepetirContrasenaChanged: (String) -> Unit,
+    onNavigateBack: () -> Unit,
+    onRegisterAsClient: () -> Unit,
+    onRegisterAsProvider: () -> Unit,
+    onNavigateToLogin: () -> Unit
+) {
     val primaryColor = Color(0xFF1E60F9)
 
-    // Estados locales para la visibilidad de contraseñas y el DatePicker
+    // Estados locales para visibilidad de contraseña y DatePicker
     var isPasswordVisible by remember { mutableStateOf(false) }
     var isRepeatPasswordVisible by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -73,7 +112,7 @@ fun RegisterScreen(
                         val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
                             timeZone = TimeZone.getTimeZone("UTC")
                         }
-                        viewModel.onNacimientoChanged(formatter.format(Date(millis)))
+                        onNacimientoChanged(formatter.format(Date(millis)))
                     }
                     showDatePicker = false
                 }) {
@@ -122,14 +161,14 @@ fun RegisterScreen(
                 CustomTextField(
                     label = "Nombre",
                     value = uiState.nombre,
-                    onValueChange = { viewModel.onNombreChanged(it) },
+                    onValueChange = onNombreChanged,
                     placeholder = "Carlos",
                     modifier = Modifier.weight(1f)
                 )
                 CustomTextField(
                     label = "Apellido",
                     value = uiState.apellido,
-                    onValueChange = { viewModel.onApellidoChanged(it) },
+                    onValueChange = onApellidoChanged,
                     placeholder = "Mendoza",
                     modifier = Modifier.weight(1f)
                 )
@@ -139,13 +178,13 @@ fun RegisterScreen(
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 CantonDropdown(
                     selectedValue = uiState.canton,
-                    onValueChange = { viewModel.onCantonChanged(it) },
+                    onValueChange = onCantonChanged,
                     modifier = Modifier.weight(1f)
                 )
                 CustomTextField(
                     label = "Nacimiento",
                     value = uiState.nacimiento,
-                    onValueChange = { viewModel.onNacimientoChanged(it) },
+                    onValueChange = onNacimientoChanged,
                     placeholder = "dd/mm/aaaa",
                     trailingIcon = Icons.Default.DateRange,
                     onTrailingIconClick = { showDatePicker = true },
@@ -161,7 +200,7 @@ fun RegisterScreen(
                     CustomTextField(
                         label = "",
                         value = uiState.identificacion,
-                        onValueChange = { viewModel.onIdentificacionChanged(it) },
+                        onValueChange = onIdentificacionChanged,
                         placeholder = "1300000000",
                         keyboardType = KeyboardType.Number,
                         modifier = Modifier.weight(1.8f)
@@ -169,7 +208,7 @@ fun RegisterScreen(
                     CustomTextField(
                         label = "",
                         value = uiState.tipoIdentificacion,
-                        onValueChange = { viewModel.onTipoIdentificacionChanged(it) },
+                        onValueChange = onTipoIdentificacionChanged,
                         trailingIcon = Icons.Default.KeyboardArrowDown,
                         readOnly = true,
                         modifier = Modifier.weight(1.2f)
@@ -181,7 +220,7 @@ fun RegisterScreen(
             CustomTextField(
                 label = "Correo",
                 value = uiState.correo,
-                onValueChange = { viewModel.onCorreoChanged(it) },
+                onValueChange = onCorreoChanged,
                 placeholder = "ejemplo@correo.com",
                 leadingIcon = Icons.Default.Email,
                 keyboardType = KeyboardType.Email
@@ -191,7 +230,7 @@ fun RegisterScreen(
             CustomTextField(
                 label = "Contraseña",
                 value = uiState.contrasena,
-                onValueChange = { viewModel.onContrasenaChanged(it) },
+                onValueChange = onContrasenaChanged,
                 placeholder = "••••••••",
                 leadingIcon = Icons.Default.Lock,
                 trailingIcon = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
@@ -203,7 +242,7 @@ fun RegisterScreen(
             CustomTextField(
                 label = "Repetir contraseña",
                 value = uiState.repetirContrasena,
-                onValueChange = { viewModel.onRepetirContrasenaChanged(it) },
+                onValueChange = onRepetirContrasenaChanged,
                 placeholder = "••••••••",
                 leadingIcon = Icons.Default.Lock,
                 trailingIcon = if (isRepeatPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
@@ -256,8 +295,7 @@ fun RegisterScreen(
     }
 }
 
-// COMPONENTE: Menú Desplegable de Cantones
-@OptIn(ExperimentalMaterial3Api::class)
+// COMPONENTE: Menú Desplegable de Cantones (Versión Estable)
 @Composable
 private fun CantonDropdown(
     selectedValue: String,
@@ -270,16 +308,21 @@ private fun CantonDropdown(
         Text("Cantón", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
         Spacer(modifier = Modifier.height(4.dp))
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
             OutlinedTextField(
                 value = selectedValue,
                 onValueChange = {},
                 readOnly = true,
                 placeholder = { Text("Selecciona", fontSize = 13.sp, color = Color(0xFF94A3B8)) },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                trailingIcon = {
+                    IconButton(onClick = { expanded = true }) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "Desplegar cantones",
+                            tint = Color(0xFF64748B)
+                        )
+                    }
+                },
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedContainerColor = Color(0xFFF7F9FC),
@@ -287,17 +330,26 @@ private fun CantonDropdown(
                     focusedBorderColor = Color(0xFF1E60F9),
                     unfocusedBorderColor = Color(0xFFE2E8F0)
                 ),
-                modifier = Modifier.fillMaxWidth().menuAnchor()
+                modifier = Modifier.fillMaxWidth()
             )
 
-            ExposedDropdownMenu(
+            // Capa transparente para detectar el clic en todo el campo
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .noRippleClickable { expanded = true }
+            )
+
+            DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
-                modifier = Modifier.background(Color.White)
+                modifier = Modifier
+                    .background(Color.White)
+                    .heightIn(max = 250.dp)
             ) {
                 cantonesManabi.forEach { canton ->
                     DropdownMenuItem(
-                        text = { Text(canton, fontSize = 14.sp) },
+                        text = { Text(canton, fontSize = 14.sp, color = Color(0xFF334155)) },
                         onClick = {
                             onValueChange(canton)
                             expanded = false
@@ -357,6 +409,39 @@ private fun CustomTextField(
                 unfocusedBorderColor = Color(0xFFE2E8F0)
             ),
             modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = this.then(
+    Modifier.clickable(
+        interactionSource = remember { MutableInteractionSource() },
+        indication = null,
+        onClick = onClick
+    )
+)
+
+// PREVIEW PARA ANDROID STUDIO
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun RegisterScreenPreview() {
+    MaterialTheme {
+        RegisterContent(
+            uiState = RegisterUiState(),
+            onNombreChanged = {},
+            onApellidoChanged = {},
+            onCantonChanged = {},
+            onNacimientoChanged = {},
+            onIdentificacionChanged = {},
+            onTipoIdentificacionChanged = {},
+            onCorreoChanged = {},
+            onContrasenaChanged = {},
+            onRepetirContrasenaChanged = {},
+            onNavigateBack = {},
+            onRegisterAsClient = {},
+            onRegisterAsProvider = {},
+            onNavigateToLogin = {}
         )
     }
 }
