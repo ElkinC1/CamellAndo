@@ -16,7 +16,21 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = Screen.Login.route) {
-        composable(Screen.Login.route) { LoginScreen() }
+        composable(Screen.Login.route) {
+            LoginScreen(
+                onNavigateToRegister = {
+                    navController.navigate(Screen.Register.route)
+                },
+                onLoginSuccess = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Login.route) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
         composable(Screen.Register.route) { RegisterScreen() }
         composable(Screen.ServiceProfileSetup.route) { ServiceProfileSetupScreen() }
         composable(Screen.CreateOffer.route) { CreateOfferDialog() }
