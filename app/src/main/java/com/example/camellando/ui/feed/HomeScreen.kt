@@ -2,7 +2,6 @@ package com.example.camellando.ui.feed
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -13,10 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.QuestionAnswer
@@ -36,13 +32,16 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.camellando.R
+import com.example.camellando.ui.components.BottomNavigationBar
+import com.example.camellando.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
     onNavigateToCreatePost: () -> Unit = {},
-    onNavigateToDetail: (String) -> Unit = {}
+    onNavigateToDetail: (String) -> Unit = {},
+    onNavigateBottomTab: (Screen) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HomeContent(
@@ -51,7 +50,8 @@ fun HomeScreen(
         onCategoriaSelected = viewModel::onCategoriaSelected,
         onToggleGuardar = viewModel::toggleGuardarServicio,
         onNavigateToCreatePost = onNavigateToCreatePost,
-        onNavigateToDetail = onNavigateToDetail
+        onNavigateToDetail = onNavigateToDetail,
+        onNavigateBottomTab = onNavigateBottomTab
     )
 }
 
@@ -63,12 +63,11 @@ private fun HomeContent(
     onCategoriaSelected: (String) -> Unit,
     onToggleGuardar: (String) -> Unit,
     onNavigateToCreatePost: () -> Unit,
-    onNavigateToDetail: (String) -> Unit
+    onNavigateToDetail: (String) -> Unit,
+    onNavigateBottomTab: (Screen) -> Unit
 ) {
     val primaryBlue = Color(0xFF1E60F9)
-    var selectedBottomTab by remember { mutableIntStateOf(0) }
 
-    // Filtrar publicaciones según pestaña (Para ti / Mis Guardados) y categoría seleccionada
     val publicacionesFiltradas = remember(uiState.pestañaSeleccionada, uiState.categoriaSeleccionada, uiState.publicaciones) {
         uiState.publicaciones.filter { servicio ->
             val coincideGuardado = if (uiState.pestañaSeleccionada == 1) servicio.esGuardado else true
@@ -102,14 +101,13 @@ private fun HomeContent(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Notificaciones/Mensajes */ }) {
+                        IconButton(onClick = { /* Notificaciones */ }) {
                             Icon(Icons.Outlined.QuestionAnswer, contentDescription = null, tint = primaryBlue)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
                 )
 
-                // Tabs superiores: "Para ti" y "Mis Guardados"
                 TabRow(
                     selectedTabIndex = uiState.pestañaSeleccionada,
                     containerColor = Color.White,
@@ -140,7 +138,6 @@ private fun HomeContent(
                     )
                 }
 
-                // Filtros de Categorías Horizontales
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -165,46 +162,10 @@ private fun HomeContent(
             }
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White,
-                tonalElevation = 8.dp
-            ) {
-                NavigationBarItem(
-                    selected = selectedBottomTab == 0,
-                    onClick = { selectedBottomTab = 0 },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
-                    label = { Text("Inicio", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = primaryBlue, selectedTextColor = primaryBlue)
-                )
-                NavigationBarItem(
-                    selected = selectedBottomTab == 1,
-                    onClick = { selectedBottomTab = 1 },
-                    icon = { Icon(Icons.Outlined.ChatBubbleOutline, contentDescription = "Mensajes") },
-                    label = { Text("Mensajes", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = primaryBlue, selectedTextColor = primaryBlue)
-                )
-                NavigationBarItem(
-                    selected = selectedBottomTab == 2,
-                    onClick = { selectedBottomTab = 2 },
-                    icon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
-                    label = { Text("Buscar", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = primaryBlue, selectedTextColor = primaryBlue)
-                )
-                NavigationBarItem(
-                    selected = selectedBottomTab == 3,
-                    onClick = { selectedBottomTab = 3 },
-                    icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
-                    label = { Text("Perfil", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = primaryBlue, selectedTextColor = primaryBlue)
-                )
-                NavigationBarItem(
-                    selected = selectedBottomTab == 4,
-                    onClick = { selectedBottomTab = 4 },
-                    icon = { Icon(Icons.Default.Menu, contentDescription = "Menú") },
-                    label = { Text("Menú", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = primaryBlue, selectedTextColor = primaryBlue)
-                )
-            }
+            BottomNavigationBar(
+                currentRoute = Screen.Home.route,
+                onNavigate = onNavigateBottomTab
+            )
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -269,7 +230,6 @@ private fun TarjetaServicioFeed(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // Header del post: Avatar + Proveedor + Opción Guardar Usuario/Publicación
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -281,7 +241,7 @@ private fun TarjetaServicioFeed(
                         color = Color(0xFFCBD5E1)
                     ) {
                         Icon(
-                            Icons.Default.Person,
+                            imageVector = Icons.Default.Person,
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.padding(8.dp)
@@ -307,15 +267,7 @@ private fun TarjetaServicioFeed(
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F172A)
                         )
-                        if (servicio.esVerificado) {
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Icon(
-                                Icons.Default.CheckCircle,
-                                contentDescription = "Verificado",
-                                tint = primaryBlue,
-                                modifier = Modifier.size(15.dp)
-                            )
-                        }
+
                     }
                     Text(
                         text = servicio.profesion,
@@ -324,7 +276,6 @@ private fun TarjetaServicioFeed(
                     )
                 }
 
-                // Categoría y Botón Guardar
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(
                         color = Color(0xFFEFF6FF),
@@ -352,7 +303,6 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Precio / Tarifa Destacada
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -373,7 +323,6 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Texto descriptivo principal
             Text(
                 text = servicio.tituloDescripcion,
                 fontSize = 14.sp,
@@ -383,7 +332,6 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // IMAGEN DE LA PUBLICACIÓN
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -400,7 +348,6 @@ private fun TarjetaServicioFeed(
                     )
                 }
 
-                // Badge contador de fotos
                 Surface(
                     color = Color.Black.copy(alpha = 0.6f),
                     shape = RoundedCornerShape(6.dp),
@@ -419,7 +366,6 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Texto secundario
             Text(
                 text = servicio.descripcionDetallada,
                 fontSize = 12.sp,
@@ -429,7 +375,6 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Reacciones y Disponibilidad
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -465,7 +410,6 @@ private fun TarjetaServicioFeed(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Botón Principal
             Button(
                 onClick = onClick,
                 modifier = Modifier
@@ -487,34 +431,15 @@ private fun TarjetaServicioFeed(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun HomeScreenPreview() {
-    val sampleState = HomeUiState(
-        publicaciones = listOf(
-            ServicioModel(
-                id = "1",
-                nombreProveedor = "Juan Álvarez",
-                profesion = "Electricista Matriculado",
-                esVerificado = true,
-                tiempoPublicacion = "Hace 2 h",
-                categoria = "Electricidad",
-                precio = "$35.00 / hora",
-                tituloDescripcion = "Instalación completa de luminarias LED y readecuación del tablero eléctrico principal.",
-                descripcionDetallada = "Materiales ignífugos de primera calidad. Pruebas de carga completadas con éxito.",
-                imagenResId = null,
-                cantidadFotos = "1/4",
-                likes = 38,
-                comentarios = 12,
-                estaDisponibleHoy = true
-            )
-        )
-    )
     MaterialTheme {
         HomeContent(
-            uiState = sampleState,
+            uiState = HomeUiState(),
             onPestañaSelected = {},
             onCategoriaSelected = {},
             onToggleGuardar = {},
             onNavigateToCreatePost = {},
-            onNavigateToDetail = {}
+            onNavigateToDetail = {},
+            onNavigateBottomTab = {}
         )
     }
 }
