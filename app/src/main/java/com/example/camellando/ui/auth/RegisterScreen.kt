@@ -1,7 +1,6 @@
 package com.example.camellando.ui.auth
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Visibility
@@ -23,33 +23,64 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onNavigateBack: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},
-    onRegisterClientSuccess: (String) -> Unit = {}, // Recibe un mensaje de confirmación
-    onRegisterProviderSuccess: () -> Unit = {}      // Redirige al perfil de prestador
+    onRegisterClientSuccess: (String) -> Unit = {},
+    onRegisterProviderSuccess: () -> Unit = {}
 ) {
     val primaryBlue = Color(0xFF1E60F9)
     val context = LocalContext.current
-    val coroutineScope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
 
-    // Estados del formulario
-    var cedula by remember { mutableStateOf("") }
-    var correo by remember { mutableStateOf("") }
-    var contrasena by remember { mutableStateOf("") }
-    var repetirContrasena by remember { mutableStateOf("") }
+    // Estado del formulario
+    var state by remember { mutableStateOf(RegisterUiState()) }
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var expandedCanton by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    val listaCantones = listOf("Manta", "Portoviejo", "Jaramijó", "Montecristi", "Chone", "Otro")
+
+    // Diálogo Selector de Fecha Nativo de Material 3
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState()
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+                                timeZone = TimeZone.getTimeZone("UTC")
+                            }
+                            val fechaFormateada = formatter.format(Date(millis))
+                            state = state.copy(nacimiento = fechaFormateada)
+                        }
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("Aceptar", color = primaryBlue, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancelar", color = Color(0xFF64748B))
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { },
@@ -78,11 +109,114 @@ fun RegisterScreen(
                 color = Color(0xFF0F172A)
             )
 
-            // Campo Identificación
+            // Nombres y Apellidos
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Nombre", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    OutlinedTextField(
+                        value = state.nombre,
+                        onValueChange = { state = state.copy(nombre = it) },
+                        placeholder = { Text("Ej. Juan", color = Color(0xFF94A3B8), fontSize = 13.sp) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedContainerColor = Color(0xFFF8FAFC),
+                            focusedContainerColor = Color.White
+                        )
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Apellido", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    OutlinedTextField(
+                        value = state.apellido,
+                        onValueChange = { state = state.copy(apellido = it) },
+                        placeholder = { Text("Ej. Pérez", color = Color(0xFF94A3B8), fontSize = 13.sp) },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedContainerColor = Color(0xFFF8FAFC),
+                            focusedContainerColor = Color.White
+                        )
+                    )
+                }
+            }
+
+            // Cantón y Fecha de Nacimiento
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Cantón", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    ExposedDropdownMenuBox(
+                        expanded = expandedCanton,
+                        onExpandedChange = { expandedCanton = !expandedCanton }
+                    ) {
+                        OutlinedTextField(
+                            value = state.canton,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCanton) },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedContainerColor = Color(0xFFF8FAFC),
+                                focusedContainerColor = Color.White
+                            ),
+                            modifier = Modifier.menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedCanton,
+                            onDismissRequest = { expandedCanton = false }
+                        ) {
+                            listaCantones.forEach { cantonSeleccionado ->
+                                DropdownMenuItem(
+                                    text = { Text(cantonSeleccionado) },
+                                    onClick = {
+                                        state = state.copy(canton = cantonSeleccionado)
+                                        expandedCanton = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Nacimiento", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
+                    Spacer(modifier = Modifier.height(4.dp))
+                    OutlinedTextField(
+                        value = state.nacimiento,
+                        onValueChange = { state = state.copy(nacimiento = it) },
+                        placeholder = { Text("DD/MM/AAAA", color = Color(0xFF94A3B8), fontSize = 12.sp) },
+                        trailingIcon = {
+                            IconButton(onClick = { showDatePicker = true }) {
+                                Icon(
+                                    Icons.Default.CalendarToday,
+                                    contentDescription = "Seleccionar fecha",
+                                    tint = primaryBlue,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedContainerColor = Color(0xFFF8FAFC),
+                            focusedContainerColor = Color.White
+                        )
+                    )
+                }
+            }
+
+            // Identificación (Cédula)
             Text("Identificación", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
             OutlinedTextField(
-                value = cedula,
-                onValueChange = { cedula = it },
+                value = state.identificacion,
+                onValueChange = { state = state.copy(identificacion = it) },
                 placeholder = { Text("1300000000", color = Color(0xFF94A3B8)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -92,11 +226,11 @@ fun RegisterScreen(
                 )
             )
 
-            // Campo Correo
+            // Correo
             Text("Correo", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
             OutlinedTextField(
-                value = correo,
-                onValueChange = { correo = it },
+                value = state.correo,
+                onValueChange = { state = state.copy(correo = it) },
                 placeholder = { Text("ejemplo@correo.com", color = Color(0xFF94A3B8)) },
                 leadingIcon = { Icon(Icons.Default.Mail, contentDescription = null, tint = Color(0xFF94A3B8)) },
                 modifier = Modifier.fillMaxWidth(),
@@ -107,11 +241,11 @@ fun RegisterScreen(
                 )
             )
 
-            // Campo Contraseña
+            // Contraseña
             Text("Contraseña", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
             OutlinedTextField(
-                value = contrasena,
-                onValueChange = { contrasena = it },
+                value = state.contrasena,
+                onValueChange = { state = state.copy(contrasena = it) },
                 placeholder = { Text("••••••••", color = Color(0xFF94A3B8)) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF94A3B8)) },
                 trailingIcon = {
@@ -132,11 +266,11 @@ fun RegisterScreen(
                 )
             )
 
-            // Campo Repetir Contraseña
+            // Repetir Contraseña
             Text("Repetir contraseña", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
             OutlinedTextField(
-                value = repetirContrasena,
-                onValueChange = { repetirContrasena = it },
+                value = state.repetirContrasena,
+                onValueChange = { state = state.copy(repetirContrasena = it) },
                 placeholder = { Text("••••••••", color = Color(0xFF94A3B8)) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF94A3B8)) },
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -150,12 +284,29 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // BOTÓN 1: Registrar como Cliente
+            // Botón 1: Registrar como cliente
             Button(
                 onClick = {
-                    // Muestra Toast inmediato y redirige al Login
-                    Toast.makeText(context, "¡Usuario cliente registrado exitosamente!", Toast.LENGTH_SHORT).show()
-                    onRegisterClientSuccess("¡Usuario cliente registrado exitosamente!")
+                    // Validaciones de Campos Vacíos y Arroba
+                    val hayCamposVacios = state.nombre.isBlank() ||
+                            state.apellido.isBlank() ||
+                            state.canton == "Selecciona" ||
+                            state.nacimiento.isBlank() ||
+                            state.identificacion.isBlank() ||
+                            state.correo.isBlank() ||
+                            state.contrasena.isBlank() ||
+                            state.repetirContrasena.isBlank()
+
+                    if (hayCamposVacios) {
+                        Toast.makeText(context, "Un campo está vacío", Toast.LENGTH_SHORT).show()
+                    } else if (!state.correo.contains("@")) {
+                        Toast.makeText(context, "El correo debe contener un '@'", Toast.LENGTH_SHORT).show()
+                    } else if (state.contrasena != state.repetirContrasena) {
+                        Toast.makeText(context, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "¡Usuario cliente registrado exitosamente!", Toast.LENGTH_SHORT).show()
+                        onRegisterClientSuccess("¡Usuario cliente registrado exitosamente!")
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -170,11 +321,9 @@ fun RegisterScreen(
                 }
             }
 
-            // BOTÓN 2: Registrar como Prestador de Servicios
+            // Botón 2: Registrar como prestador de servicios
             OutlinedButton(
-                onClick = {
-                    onRegisterProviderSuccess()
-                },
+                onClick = onRegisterProviderSuccess,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -193,7 +342,6 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Enlace: Iniciar sesión
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
@@ -204,6 +352,8 @@ fun RegisterScreen(
                     Text("Iniciar sesión", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = primaryBlue)
                 }
             }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
