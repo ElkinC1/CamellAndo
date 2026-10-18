@@ -6,7 +6,6 @@ data class RegisterUiState(
     val canton: String = "Selecciona",
     val nacimiento: String = "",
     val identificacion: String = "",
-    val tipoIdentificacion: String = "Cédula",
     val correo: String = "",
     val contrasena: String = "",
     val repetirContrasena: String = ""

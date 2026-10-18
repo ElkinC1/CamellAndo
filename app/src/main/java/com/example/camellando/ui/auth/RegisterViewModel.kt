@@ -17,7 +17,6 @@ class RegisterViewModel : ViewModel() {
     fun onCantonChanged(v: String) = _uiState.update { it.copy(canton = v) }
     fun onNacimientoChanged(v: String) = _uiState.update { it.copy(nacimiento = v) }
     fun onIdentificacionChanged(v: String) = _uiState.update { it.copy(identificacion = v) }
-    fun onTipoIdentificacionChanged(v: String) = _uiState.update { it.copy(tipoIdentificacion = v) }
     fun onCorreoChanged(v: String) = _uiState.update { it.copy(correo = v) }
     fun onContrasenaChanged(v: String) = _uiState.update { it.copy(contrasena = v) }
     fun onRepetirContrasenaChanged(v: String) = _uiState.update { it.copy(repetirContrasena = v) }
