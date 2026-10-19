@@ -1,5 +1,6 @@
 package com.example.camellando.ui.feed
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.example.camellando.R
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +35,41 @@ class HomeViewModel : ViewModel() {
                 }
             }
             state.copy(publicaciones = listaActualizada)
+        }
+    }
+
+    fun mostrarAlertaPublicacionCreada() {
+        _uiState.update { it.copy(mostrarAlertaCreada = true) }
+    }
+
+    fun ocultarAlertaPublicacionCreada() {
+        _uiState.update { it.copy(mostrarAlertaCreada = false) }
+    }
+
+    fun agregarPublicacion(texto: String, fotosUri: List<Uri> = emptyList()) {
+        val nuevaPublicacion = ServicioModel(
+            id = System.currentTimeMillis().toString(),
+            nombreProveedor = "Juan Álvarez",
+            profesion = "Electricista Matriculado",
+            esVerificado = true,
+            tiempoPublicacion = "Hace un momento",
+            categoria = "Electricidad",
+            precio = "A cotizar",
+            tituloDescripcion = texto.ifBlank { "Nueva publicación de servicio" },
+            descripcionDetallada = texto,
+            imagenUri = fotosUri.firstOrNull()?.toString(),
+            imagenResId = if (fotosUri.isEmpty()) R.drawable.electricista else null,
+            cantidadFotos = if (fotosUri.isNotEmpty()) "1/${fotosUri.size}" else "1/1",
+            likes = 0,
+            comentarios = 0,
+            estaDisponibleHoy = true,
+            esGuardado = false
+        )
+        _uiState.update { current ->
+            current.copy(
+                publicaciones = listOf(nuevaPublicacion) + current.publicaciones,
+                mostrarAlertaCreada = true
+            )
         }
     }
 

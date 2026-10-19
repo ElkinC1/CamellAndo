@@ -1,6 +1,7 @@
 package com.example.camellando.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -14,6 +15,7 @@ import com.example.camellando.ui.search.*
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val homeViewModel: HomeViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -40,7 +42,19 @@ fun AppNavigation() {
         }
 
         composable(Screen.ServiceProfileSetup.route) {
-            ServiceProfileSetupScreen()
+            ServiceProfileSetupScreen(
+                onBackClick = {
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.Register.route)
+                    }
+                },
+                onRegistrarClick = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Login.route) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
 
         composable(Screen.CreateOffer.route) {
@@ -53,6 +67,7 @@ fun AppNavigation() {
 
         composable(Screen.Home.route) {
             HomeScreen(
+                viewModel = homeViewModel,
                 onNavigateToCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
                 },
@@ -69,7 +84,25 @@ fun AppNavigation() {
         }
 
         composable(Screen.CreatePost.route) {
-            CreatePostScreen()
+            val navigateToHome = {
+                val popped = navController.popBackStack(Screen.Home.route, inclusive = false)
+                if (!popped) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
+            }
+
+            CreatePostScreen(
+                onCloseClick = {
+                    navigateToHome()
+                },
+                onPublicarClick = { texto, fotos ->
+                    homeViewModel.agregarPublicacion(texto, fotos)
+                    navigateToHome()
+                }
+            )
         }
 
         composable(Screen.Search.route) {

@@ -1,6 +1,7 @@
 
 package com.example.camellando.ui.feed
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.example.camellando.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +60,8 @@ fun HomeScreen(
         onNavigateToCreatePost = onNavigateToCreatePost,
         onNavigateToDetail = onNavigateToDetail,
         onNavigateToSearch = onNavigateToSearch,
-        onNavigateToProfile = onNavigateToProfile
+        onNavigateToProfile = onNavigateToProfile,
+        onDismissAlerta = viewModel::ocultarAlertaPublicacionCreada
     )
 }
 
@@ -71,7 +75,8 @@ private fun HomeContent(
     onNavigateToCreatePost: () -> Unit,
     onNavigateToDetail: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    onDismissAlerta: () -> Unit = {}
 ) {
     val primaryBlue = Color(0xFF1E60F9)
     var selectedBottomTab by remember { mutableIntStateOf(0) }
@@ -353,6 +358,43 @@ private fun HomeContent(
                 }
             }
         }
+
+        if (uiState.mostrarAlertaCreada) {
+            val context = LocalContext.current
+            LaunchedEffect(Unit) {
+                Toast.makeText(context, "publicación creada", Toast.LENGTH_SHORT).show()
+            }
+
+            AlertDialog(
+                onDismissRequest = onDismissAlerta,
+                title = {
+                    Text(
+                        text = "publicación creada",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        color = Color(0xFF0F172A)
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Tu publicación ha sido compartida con éxito.",
+                        fontSize = 14.sp,
+                        color = Color(0xFF475569)
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = onDismissAlerta,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = primaryBlue)
+                    ) {
+                        Text("Aceptar", color = Color.White)
+                    }
+                },
+                shape = RoundedCornerShape(16.dp),
+                containerColor = Color.White
+            )
+        }
     }
 }
 
@@ -511,7 +553,14 @@ private fun TarjetaServicioFeed(
                     .clip(RoundedCornerShape(12.dp))
                     .background(Color(0xFFE2E8F0))
             ) {
-                if (servicio.imagenResId != null) {
+                if (servicio.imagenUri != null) {
+                    AsyncImage(
+                        model = servicio.imagenUri,
+                        contentDescription = "Imagen del trabajo",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else if (servicio.imagenResId != null) {
                     Image(
                         painter = painterResource(
                             id = servicio.imagenResId

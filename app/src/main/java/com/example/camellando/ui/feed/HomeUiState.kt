@@ -13,6 +13,7 @@ data class ServicioModel(
     val tituloDescripcion: String = "",
     val descripcionDetallada: String = "",
     @DrawableRes val imagenResId: Int? = null,
+    val imagenUri: String? = null,
     val cantidadFotos: String = "1/4",
     val likes: Int = 0,
     val comentarios: Int = 0,
@@ -25,5 +26,6 @@ data class HomeUiState(
     val categoriaSeleccionada: String = "Todos",
     val listaCategorias: List<String> = listOf("Todos", "Electricidad", "Plomería", "Limpieza", "Pintura"),
     val publicaciones: List<ServicioModel> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val mostrarAlertaCreada: Boolean = false
 )
