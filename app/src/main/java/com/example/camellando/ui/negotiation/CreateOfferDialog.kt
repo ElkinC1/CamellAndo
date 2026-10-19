@@ -1,14 +1,7 @@
-<<<<<<< HEAD
 
 package com.example.camellando.ui.negotiation
 
 import androidx.compose.foundation.BorderStroke
-=======
-<<<<<<< HEAD
-
-package com.example.camellando.ui.negotiation
-
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -21,10 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-<<<<<<< HEAD
 import androidx.compose.ui.text.TextStyle
-=======
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,10 +45,6 @@ fun CreateOfferDialog(
                 .padding(horizontal = 20.dp),
             contentAlignment = Alignment.Center
         ) {
-<<<<<<< HEAD
-=======
-            // Botón X en la parte superior derecha
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier
@@ -75,10 +61,6 @@ fun CreateOfferDialog(
                 )
             }
 
-<<<<<<< HEAD
-=======
-            // Tarjeta central del modal
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -97,10 +79,6 @@ fun CreateOfferDialog(
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(22.dp)
                 ) {
-<<<<<<< HEAD
-=======
-                    // Tarea
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -137,11 +115,7 @@ fun CreateOfferDialog(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp),
                             color = fondoCampo,
-<<<<<<< HEAD
                             border = BorderStroke(
-=======
-                            border = androidx.compose.foundation.BorderStroke(
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
                                 1.dp,
                                 Color(0xFFE8EDF4)
                             )
@@ -159,10 +133,6 @@ fun CreateOfferDialog(
                         }
                     }
 
-<<<<<<< HEAD
-=======
-                    // Presupuesto
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
                     Column(
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
@@ -220,21 +190,13 @@ fun CreateOfferDialog(
                                 focusedTextColor = texto,
                                 unfocusedTextColor = texto
                             ),
-<<<<<<< HEAD
                             textStyle = TextStyle(
-=======
-                            textStyle = androidx.compose.ui.text.TextStyle(
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
                                 fontSize = 19.sp,
                                 fontWeight = FontWeight.SemiBold
                             )
                         )
                     }
 
-<<<<<<< HEAD
-=======
-                    // Botón Ofertar
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
                     Button(
                         onClick = onOfertar,
                         modifier = Modifier
@@ -272,30 +234,3 @@ fun CreateOfferDialog(
         }
     }
 }
-<<<<<<< HEAD
-=======
-
-=======
-package com.example.camellando.ui.negotiation
-
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-
-@Composable
-fun CreateOfferDialog(onDismiss: () -> Unit = {}) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Interfaz 4: Modal Ofertar") },
-        text = { Text("Modal para definir tarea y presupuesto.") },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Enviar") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancelar") }
-        }
-    )
-}
->>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
->>>>>>> 200c4fc1ba5e96803eda665dc9ac620fd96cd815
