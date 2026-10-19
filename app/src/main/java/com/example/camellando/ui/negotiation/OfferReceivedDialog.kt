@@ -1,6 +1,7 @@
 package com.example.camellando.ui.negotiation
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,11 +19,14 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.SyncAlt
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -41,7 +45,7 @@ data class ClienteOfertaModel(
     val totalResenas: Int = 24,
     val ubicacion: String = "Zona Norte • A 2.4 km de ti",
     val estaEnLinea: Boolean = true,
-    @DrawableRes val fotoPerfilResId: Int? = R.drawable.electricista
+    @get:DrawableRes val fotoPerfilResId: Int? = null
 )
 
 data class OfertaDetalleModel(
@@ -180,10 +184,17 @@ private fun OfferReceivedContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box {
-                            // FOTO DE PERFIL CON RECURSO DRAWABLE O ICONO DE RESPALDO
-                            if (oferta.cliente.fotoPerfilResId != null) {
+                            val isPreview = LocalInspectionMode.current
+                            val context = LocalContext.current
+                            val resolvedDrawableId = remember(oferta.cliente.fotoPerfilResId) {
+                                oferta.cliente.fotoPerfilResId ?: runCatching {
+                                    context.resources.getIdentifier("electricista", "drawable", context.packageName).takeIf { it != 0 }
+                                }.getOrNull()
+                            }
+
+                            if (resolvedDrawableId != null && !isPreview) {
                                 Image(
-                                    painter = painterResource(id = oferta.cliente.fotoPerfilResId),
+                                    painter = painterResource(id = resolvedDrawableId),
                                     contentDescription = "Foto de perfil de ${oferta.cliente.nombre}",
                                     modifier = Modifier
                                         .size(48.dp)
@@ -194,14 +205,20 @@ private fun OfferReceivedContent(
                                 Surface(
                                     modifier = Modifier.size(48.dp),
                                     shape = CircleShape,
-                                    color = Color(0xFFCBD5E1)
+                                    color = Color(0xFFEFF6FF)
                                 ) {
-                                    Icon(
-                                        Icons.Default.Person,
-                                        contentDescription = null,
-                                        tint = Color.White,
-                                        modifier = Modifier.padding(8.dp)
-                                    )
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = oferta.cliente.nombre
+                                                .split(" ")
+                                                .take(2)
+                                                .mapNotNull { it.firstOrNull() }
+                                                .joinToString(""),
+                                            color = primaryBlue,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
                                 }
                             }
 
@@ -448,9 +465,7 @@ private fun OfferReceivedContent(
                         .height(50.dp),
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = androidx.compose.ui.graphics.SolidColor(Color(0xFFE2E8F0))
-                    )
+                    border = BorderStroke(1.dp, Color(0xFFE2E8F0))
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -485,7 +500,7 @@ private fun OfferReceivedContent(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 412, heightDp = 892)
 @Composable
 private fun OfferReceivedDialogPreview() {
     MaterialTheme {

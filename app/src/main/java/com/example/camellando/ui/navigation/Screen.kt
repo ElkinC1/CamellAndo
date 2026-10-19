@@ -15,4 +15,5 @@ sealed class Screen(val route: String) {
     object ClientProfile : Screen("client_profile")
     object Chat : Screen("chat")
     object AgreementReached : Screen("agreement_reached")
+    object CounterOfferReceived : Screen("counter_offer_received")
 }

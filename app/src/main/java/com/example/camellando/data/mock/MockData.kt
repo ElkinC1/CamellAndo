@@ -1,4 +1,4 @@
-﻿package com.example.camellando.data.mock
+package com.example.camellando.data.mock
 
 import kotlin.collections.listOf
 import com.example.camellando.R
@@ -43,8 +43,10 @@ data class PostDummy(
     val imageRes: List<Int> = emptyList()
 )
 
-val mockPosts = listOf(
-    PostDummy(id = "1", providerName = "Juan Álvarez", date = "18 oct. 2026", description = "Instalación eléctrica terminada. Revisamos cada conexión para garantizar un trabajo seguro y de calidad.", imageRes = listOf(R.drawable.portfolio_electrical, R.drawable.portfolio_lighting, R.drawable.portfolio_wiring)),
-    PostDummy(id = "2", providerName = "Juan Álvarez", date = "15 oct. 2026", description = "¿Necesitas renovar la iluminación de tu hogar? Puedo ayudarte a encontrar una solución funcional y moderna.", imageRes = listOf(R.drawable.portfolio_lighting)),
-    PostDummy(id = "3", providerName = "Juan Álvarez", date = "12 oct. 2026", description = "Recuerda revisar periódicamente las instalaciones eléctricas de tu hogar para prevenir posibles inconvenientes.")
-)
+val mockPosts: List<PostDummy> by lazy {
+    listOf(
+        PostDummy(id = "1", providerName = "Juan Álvarez", date = "18 oct. 2026", description = "Instalación eléctrica terminada. Revisamos cada conexión para garantizar un trabajo seguro y de calidad.", imageRes = listOf(R.drawable.portfolio_electrical, R.drawable.portfolio_lighting, R.drawable.portfolio_wiring)),
+        PostDummy(id = "2", providerName = "Juan Álvarez", date = "15 oct. 2026", description = "¿Necesitas renovar la iluminación de tu hogar? Puedo ayudarte a encontrar una solución funcional y moderna.", imageRes = listOf(R.drawable.portfolio_lighting)),
+        PostDummy(id = "3", providerName = "Juan Álvarez", date = "12 oct. 2026", description = "Recuerda revisar periódicamente las instalaciones eléctricas de tu hogar para prevenir posibles inconvenientes.")
+    )
+}

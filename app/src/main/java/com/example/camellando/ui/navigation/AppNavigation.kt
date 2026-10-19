@@ -19,7 +19,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route
+        startDestination = Screen.CounterOfferReceived.route/*Screen.Login.route*/
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
@@ -135,6 +135,21 @@ fun AppNavigation() {
 
         composable(Screen.CounterOffer.route) {
             CounterOfferDialog()
+        }
+
+        composable(Screen.CounterOfferReceived.route) {
+            CounterOfferReceivedDialog(
+                onDismiss = { navController.popBackStack() },
+                onAceptarContraoferta = {
+                    navController.navigate(Screen.AgreementReached.route)
+                },
+                onContraoferta = {
+                    navController.navigate(Screen.CreateOffer.route)
+                },
+                onRechazarContraoferta = {
+                    navController.navigate(Screen.OfferReceived.route)
+                }
+            )
         }
 
         composable(Screen.ClientProfile.route) {
