@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 package com.example.camellando.ui.negotiation
 
@@ -238,3 +239,26 @@ fun CreateOfferDialog(
     }
 }
 
+=======
+package com.example.camellando.ui.negotiation
+
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+
+@Composable
+fun CreateOfferDialog(onDismiss: () -> Unit = {}) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Interfaz 4: Modal Ofertar") },
+        text = { Text("Modal para definir tarea y presupuesto.") },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Enviar") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancelar") }
+        }
+    )
+}
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6

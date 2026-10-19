@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 package com.example.camellando.ui.profile
 
@@ -28,10 +29,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+=======
+package com.example.camellando.ui.profile
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+<<<<<<< HEAD
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -285,5 +293,12 @@ fun ProviderDetailScreen(
             fontSize = 12.sp,
             color = textoSecundario
         )
+=======
+
+@Composable
+fun ProviderDetailScreen(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text = "Interfaz 9: Perfil Profesional (ProviderDetailScreen)")
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
     }
 }

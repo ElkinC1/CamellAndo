@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
 package com.example.camellando.ui.navigation
 
 import androidx.compose.runtime.Composable
@@ -51,15 +54,20 @@ fun AppNavigation() {
                 },
                 onRegistrarClick = {
                     navController.navigate(Screen.Login.route) {
+<<<<<<< HEAD
                         popUpTo(Screen.Login.route) {
                             inclusive = false
                         }
+=======
+                        popUpTo(Screen.Login.route) { inclusive = false }
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
                         launchSingleTop = true
                     }
                 }
             )
         }
 
+<<<<<<< HEAD
         // Crear una oferta
         composable(Screen.CreateOffer.route) {
             CreateOfferDialog(
@@ -70,6 +78,10 @@ fun AppNavigation() {
                     navController.navigate(Screen.OfferReceived.route)
                 }
             )
+=======
+        composable(Screen.CreateOffer.route) {
+            CreateOfferDialog()
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
         }
 
         composable(Screen.ProviderProfile.route) {
@@ -96,6 +108,7 @@ fun AppNavigation() {
 
         composable(Screen.CreatePost.route) {
             val navigateToHome = {
+<<<<<<< HEAD
                 val popped = navController.popBackStack(
                     Screen.Home.route,
                     inclusive = false
@@ -103,6 +116,12 @@ fun AppNavigation() {
 
                 if (!popped) {
                     navController.navigate(Screen.Home.route) {
+=======
+                val popped = navController.popBackStack(Screen.Home.route, inclusive = false)
+                if (!popped) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = false }
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
                         launchSingleTop = true
                     }
                 }
@@ -140,6 +159,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.ProviderDetail.route) {
+<<<<<<< HEAD
             ProviderDetailScreen(
                 onBack = {
                     navController.popBackStack()
@@ -176,6 +196,17 @@ fun AppNavigation() {
                     navController.popBackStack()
                 }
             )
+=======
+            ProviderDetailScreen()
+        }
+
+        composable(Screen.OfferReceived.route) {
+            OfferReceivedDialog()
+        }
+
+        composable(Screen.CounterOffer.route) {
+            CounterOfferDialog()
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
         }
 
         composable(Screen.ClientProfile.route) {
@@ -193,10 +224,17 @@ fun AppNavigation() {
             ChatScreen()
         }
 
+<<<<<<< HEAD
         // Acuerdo alcanzado al aceptar la oferta
+=======
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
         composable(Screen.AgreementReached.route) {
             AgreementReachedDialog()
         }
     }
+<<<<<<< HEAD
 }
 
+=======
+}
+>>>>>>> 71c63baa8b6560d433643d67fae55dd209852bd6
