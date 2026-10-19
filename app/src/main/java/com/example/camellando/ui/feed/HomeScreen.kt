@@ -48,7 +48,8 @@ fun HomeScreen(
     onNavigateToCreatePost: () -> Unit = {},
     onNavigateToDetail: (String) -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToProviderProfile: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -61,6 +62,7 @@ fun HomeScreen(
         onNavigateToDetail = onNavigateToDetail,
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToProfile = onNavigateToProfile,
+        onNavigateToProviderProfile = onNavigateToProviderProfile,
         onDismissAlerta = viewModel::ocultarAlertaPublicacionCreada
     )
 }
@@ -76,6 +78,7 @@ private fun HomeContent(
     onNavigateToDetail: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onNavigateToProviderProfile: () -> Unit,
     onDismissAlerta: () -> Unit = {}
 ) {
     val primaryBlue = Color(0xFF1E60F9)
@@ -353,7 +356,8 @@ private fun HomeContent(
                         onClick = { onNavigateToDetail(servicio.id) },
                         onToggleGuardar = {
                             onToggleGuardar(servicio.id)
-                        }
+                        },
+                        onNavigateToProviderProfile = onNavigateToProviderProfile
                     )
                 }
             }
@@ -399,10 +403,11 @@ private fun HomeContent(
 }
 
 @Composable
-private fun TarjetaServicioFeed(
+private fun  TarjetaServicioFeed(
     servicio: ServicioModel,
     onClick: () -> Unit,
-    onToggleGuardar: () -> Unit
+    onToggleGuardar: () -> Unit,
+    onNavigateToProviderProfile: () -> Unit
 ) {
     val primaryBlue = Color(0xFF1E60F9)
 
@@ -415,7 +420,13 @@ private fun TarjetaServicioFeed(
         Column(modifier = Modifier.padding(16.dp)) {
             // Encabezado de la publicación.
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        if (servicio.nombreProveedor.equals("Juan Álvarez", ignoreCase = true)) {
+                            onNavigateToProviderProfile()
+                        }
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box {
@@ -727,7 +738,8 @@ private fun HomeScreenPreview() {
             onNavigateToCreatePost = {},
             onNavigateToDetail = {},
             onNavigateToSearch = {},
-            onNavigateToProfile = {}
+            onNavigateToProfile = {},
+            onNavigateToProviderProfile = {}
         )
     }
 }

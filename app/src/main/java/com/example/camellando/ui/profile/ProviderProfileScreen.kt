@@ -38,7 +38,8 @@ private val ProfileGold = Color(0xFFF59E0B)
 
 @Composable
 fun ProviderProfileScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToPortfolio: () -> Unit = {}
 ) {
     val provider = mockProviders.first()
     Column(
@@ -49,7 +50,7 @@ fun ProviderProfileScreen(
     ) {
         ProviderHeader(provider)
         Spacer(modifier = Modifier.height(12.dp))
-        PortfolioSummary()
+        PortfolioSummary(onViewPortfolio = {onNavigateToPortfolio()})
         Spacer(Modifier.height(12.dp))
         RecentReviews()
         Spacer(Modifier.height(12.dp))

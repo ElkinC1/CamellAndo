@@ -72,7 +72,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.ProviderProfile.route) {
-            ProviderProfileScreen()
+            ProviderProfileScreen(onNavigateToPortfolio = {navController.navigate(Screen.ProviderDetail.route) })
         }
 
         composable(Screen.Home.route) {
@@ -81,7 +81,7 @@ fun AppNavigation() {
                 onNavigateToCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
                 },
-                onNavigateToDetail = { _ ->
+                onNavigateToDetail = { postId ->
                     navController.navigate(Screen.ProviderDetail.route)
                 },
                 onNavigateToSearch = {
@@ -89,6 +89,9 @@ fun AppNavigation() {
                 },
                 onNavigateToProfile = {
                     navController.navigate(Screen.ClientProfile.route)
+                },
+                onNavigateToProviderProfile = {
+                    navController.navigate(Screen.ProviderProfile.route)
                 }
             )
         }
@@ -139,7 +142,7 @@ fun AppNavigation() {
         }
 
         composable(Screen.ProviderDetail.route) {
-            ProviderDetailScreen()
+            ProviderDetailScreen(onBack = {navController.popBackStack()})
         }
 
 
