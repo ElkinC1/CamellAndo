@@ -49,7 +49,8 @@ fun HomeScreen(
     onNavigateToDetail: (String) -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
-    onNavigateToProviderProfile: () -> Unit = {}
+    onNavigateToProviderProfile: () -> Unit = {},
+    onNavigateToChat: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -63,6 +64,7 @@ fun HomeScreen(
         onNavigateToSearch = onNavigateToSearch,
         onNavigateToProfile = onNavigateToProfile,
         onNavigateToProviderProfile = onNavigateToProviderProfile,
+        onNavigateToChat = onNavigateToChat,
         onDismissAlerta = viewModel::ocultarAlertaPublicacionCreada
     )
 }
@@ -79,6 +81,7 @@ private fun HomeContent(
     onNavigateToSearch: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToProviderProfile: () -> Unit,
+    onNavigateToChat: () -> Unit,
     onDismissAlerta: () -> Unit = {}
 ) {
     val primaryBlue = Color(0xFF1E60F9)
@@ -235,7 +238,10 @@ private fun HomeContent(
 
                 NavigationBarItem(
                     selected = selectedBottomTab == 1,
-                    onClick = { selectedBottomTab = 1 },
+                    onClick = {
+                        selectedBottomTab = 1
+                        onNavigateToChat()
+                    },
                     icon = {
                         Icon(
                             Icons.Outlined.ChatBubbleOutline,
@@ -739,7 +745,8 @@ private fun HomeScreenPreview() {
             onNavigateToDetail = {},
             onNavigateToSearch = {},
             onNavigateToProfile = {},
-            onNavigateToProviderProfile = {}
+            onNavigateToProviderProfile = {},
+            onNavigateToChat = {}
         )
     }
 }

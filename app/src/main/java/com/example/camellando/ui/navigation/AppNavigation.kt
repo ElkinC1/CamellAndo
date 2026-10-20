@@ -92,6 +92,9 @@ fun AppNavigation() {
                 },
                 onNavigateToProviderProfile = {
                     navController.navigate(Screen.ProviderProfile.route)
+                },
+                onNavigateToChat = {
+                    navController.navigate(Screen.Chat.route)
                 }
             )
         }
@@ -200,7 +203,20 @@ fun AppNavigation() {
         }
 
         composable(Screen.Chat.route) {
-            ChatScreen()
+            ChatScreen(
+                onNavigate = { screen ->
+                    navController.navigate(screen.route) {
+                        popUpTo(Screen.Home.route) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
         }
 
         // Acuerdo alcanzado al aceptar la oferta
