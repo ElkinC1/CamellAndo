@@ -1,0 +1,15 @@
+* [33m5c1c8dd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m cambios en ls rutas
+* [33m7fb981f[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Integracion de Bottom Bar y mejoras de navegacion
+* [33m16308af[m Interfez de chats
+* [33m2b19cd7[m Agregar interfaz de portafolio de prestador de servicio
+* [33mfd7fa0f[m arreglanod problemas con head
+*   [33m54774dd[m Resueltos conflictos de merge y actualizacion de pantallas
+[32m|[m[33m\[m  
+[32m|[m *   [33m200c4fc[m Merge branch 'main' of https://github.com/ElkinC1/CamellAndo
+[32m|[m [34m|[m[35m\[m  
+[32m|[m [34m|[m *   [33m2724836[m Integrar dialogo de ofertas con cambios remotos
+[32m|[m [34m|[m [36m|[m[1;31m\[m  
+[32m|[m [34m|[m * [1;31m|[m [33mb688f57[m Implementar dialogo de creacion de ofertas
+[32m|[m [34m|[m  [1;31m/[m  
+[32m|[m * [1;31m/[m [33mc030fff[m feat(navigate): CounterOfferReceivedDialog.kt
+[32m|[m [1;31m|[m[1;31m/[m  

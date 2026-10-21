@@ -72,7 +72,7 @@ fun AppNavigation() {
             CreateOfferDialog(
                 onDismiss = navigateToHome,
                 onOfertar = {
-                    navController.navigate(Screen.OfferReceived.route)
+                    navigateToHome()
                 }
             )
         }
@@ -89,7 +89,9 @@ fun AppNavigation() {
                     navController.navigate(Screen.CreatePost.route)
                 },
                 onNavigateToDetail = { postId ->
-                    navController.navigate(Screen.ProviderDetail.route)
+                    navController.navigate(Screen.CreateOffer.route) {
+                        launchSingleTop = true
+                    }
                 },
                 onNavigateToSearch = {
                     navController.navigate(Screen.Search.route)
