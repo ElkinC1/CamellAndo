@@ -51,22 +51,12 @@ fun LoginScreen(
     ) {
         Spacer(modifier = Modifier.height(90.dp))
 
-        Box(
-            modifier = Modifier
-                .size(76.dp)
-                .background(
-                    color = Color(0xFFE8F0FF),
-                    shape = RoundedCornerShape(17.dp)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.camellando_logo),
-                contentDescription = "Logo de CameLlando",
-                modifier = Modifier.size(68.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
+        Image(
+            painter = painterResource(id = R.drawable.camellando_logo),
+            contentDescription = "Logo de CameLlando",
+            modifier = Modifier.size(80.dp),
+            contentScale = ContentScale.Fit
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
 
