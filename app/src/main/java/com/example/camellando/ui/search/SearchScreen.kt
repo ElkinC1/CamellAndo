@@ -19,8 +19,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.camellando.data.mock.ProviderDummy
 import com.example.camellando.data.mock.mockProviders
+import com.example.camellando.ui.components.BottomNavigationBar
+import com.example.camellando.ui.navigation.Screen
 
 private val SearchBlue = Color(0xFF2563EB)
 private val SearchBg = Color(0xFFF5F7FB)
@@ -29,11 +32,20 @@ private val SearchMuted = Color(0xFF64748B)
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
+    navController: NavController? = null,
     onNavigateHome: () -> Unit = {},
     onNavigateMessages: () -> Unit = {},
     onNavigateProfile: () -> Unit = {},
     onNavigateMenu: () -> Unit = {},
-    onProviderClick: () -> Unit = {}
+    onProviderClick: () -> Unit = {},
+    onNavigate: (Screen) -> Unit = { screen ->
+        when (screen) {
+            Screen.Home -> onNavigateHome()
+            Screen.Chat -> onNavigateMessages()
+            Screen.ClientProfile -> onNavigateProfile()
+            else -> {}
+        }
+    }
 ) {
     var query by remember { mutableStateOf("Electricista") }
     var selectedFilter by remember { mutableStateOf("Todos") }
@@ -274,12 +286,14 @@ fun SearchScreen(
             }
         }
 
-        SearchBottomBar(
-            onNavigateHome,
-            onNavigateMessages,
-            onNavigateProfile,
-            onNavigateMenu
-        )
+        if (navController != null) {
+            BottomNavigationBar(navController = navController)
+        } else {
+            BottomNavigationBar(
+                currentRoute = Screen.Search.route,
+                onNavigate = onNavigate
+            )
+        }
     }
 }
 
@@ -468,69 +482,4 @@ private fun ProviderResultCard(
         }
     }
 }
-
-@Composable
-private fun SearchBottomBar(
-    onHome: () -> Unit,
-    onMessages: () -> Unit,
-    onProfile: () -> Unit,
-    onMenu: () -> Unit
-) {
-    NavigationBar(containerColor = Color.White) {
-        NavigationBarItem(
-            selected = false,
-            onClick = onHome,
-            icon = {
-                Icon(Icons.Outlined.Home, contentDescription = "Inicio")
-            },
-            label = { Text("Inicio", fontSize = 10.sp) }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = onMessages,
-            icon = {
-                Icon(
-                    Icons.Outlined.ChatBubbleOutline,
-                    contentDescription = "Mensajes"
-                )
-            },
-            label = { Text("Mensajes", fontSize = 10.sp) }
-        )
-
-        NavigationBarItem(
-            selected = true,
-            onClick = {},
-            icon = {
-                Icon(Icons.Outlined.Search, contentDescription = "Buscar")
-            },
-            label = { Text("Buscar", fontSize = 10.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = SearchBlue,
-                selectedTextColor = SearchBlue,
-                indicatorColor = Color(0xFFE8F0FF)
-            )
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = onProfile,
-            icon = {
-                Icon(
-                    Icons.Outlined.PersonOutline,
-                    contentDescription = "Perfil"
-                )
-            },
-            label = { Text("Perfil", fontSize = 10.sp) }
-        )
-
-        NavigationBarItem(
-            selected = false,
-            onClick = onMenu,
-            icon = {
-                Icon(Icons.Outlined.Menu, contentDescription = "Menú")
-            },
-            label = { Text("Menú", fontSize = 10.sp) }
-        )
-    }
-}
+

@@ -1,4 +1,5 @@
 
+
 package com.example.camellando.ui.feed
 
 import android.widget.Toast
@@ -16,11 +17,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.QuestionAnswer
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.*
@@ -38,24 +39,39 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.camellando.R
+import com.example.camellando.ui.components.BottomNavigationBar
+import com.example.camellando.ui.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
+    navController: NavController? = null,
     onNavigateToCreatePost: () -> Unit = {},
     onNavigateToDetail: (String) -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
     onNavigateToProviderProfile: () -> Unit = {},
-    onNavigateToChat: () -> Unit = {}
+    onNavigateToChat: () -> Unit = {},
+    onNavigateToOfferReceived: () -> Unit = {},
+    onNavigate: (Screen) -> Unit = { screen ->
+        when (screen) {
+            Screen.Chat -> onNavigateToChat()
+            Screen.Search -> onNavigateToSearch()
+            Screen.ClientProfile -> onNavigateToProfile()
+            Screen.OfferReceived -> onNavigateToOfferReceived()
+            else -> {}
+        }
+    }
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     HomeContent(
         uiState = uiState,
+        navController = navController,
         onPestañaSelected = viewModel::onPestañaSelected,
         onCategoriaSelected = viewModel::onCategoriaSelected,
         onToggleGuardar = viewModel::toggleGuardarServicio,
@@ -65,6 +81,8 @@ fun HomeScreen(
         onNavigateToProfile = onNavigateToProfile,
         onNavigateToProviderProfile = onNavigateToProviderProfile,
         onNavigateToChat = onNavigateToChat,
+        onNavigateToOfferReceived = onNavigateToOfferReceived,
+        onNavigate = onNavigate,
         onDismissAlerta = viewModel::ocultarAlertaPublicacionCreada
     )
 }
@@ -73,6 +91,7 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     uiState: HomeUiState,
+    navController: NavController? = null,
     onPestañaSelected: (Int) -> Unit,
     onCategoriaSelected: (String) -> Unit,
     onToggleGuardar: (String) -> Unit,
@@ -82,10 +101,11 @@ private fun HomeContent(
     onNavigateToProfile: () -> Unit,
     onNavigateToProviderProfile: () -> Unit,
     onNavigateToChat: () -> Unit,
+    onNavigateToOfferReceived: () -> Unit = {},
+    onNavigate: (Screen) -> Unit = {},
     onDismissAlerta: () -> Unit = {}
 ) {
     val primaryBlue = Color(0xFF1E60F9)
-    var selectedBottomTab by remember { mutableIntStateOf(0) }
 
     // Filtrar publicaciones según pestaña y categoría seleccionada.
     val publicacionesFiltradas = remember(
@@ -140,10 +160,32 @@ private fun HomeContent(
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Notificaciones/Mensajes */ }) {
+                        IconButton(onClick = onNavigateToOfferReceived) {
+                            BadgedBox(
+                                badge = {
+                                    Badge(
+                                        containerColor = Color(0xFFEF4444),
+                                        contentColor = Color.White
+                                    ) {
+                                        Text(
+                                            text = "1",
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Notifications,
+                                    contentDescription = "Notificaciones",
+                                    tint = primaryBlue
+                                )
+                            }
+                        }
+                        IconButton(onClick = onNavigateToProfile) {
                             Icon(
-                                Icons.Outlined.QuestionAnswer,
-                                contentDescription = null,
+                                Icons.Default.Person,
+                                contentDescription = "Perfil",
                                 tint = primaryBlue
                             )
                         }
@@ -216,99 +258,12 @@ private fun HomeContent(
             }
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White,
-                tonalElevation = 8.dp
-            ) {
-                NavigationBarItem(
-                    selected = selectedBottomTab == 0,
-                    onClick = { selectedBottomTab = 0 },
-                    icon = {
-                        Icon(
-                            Icons.Default.Home,
-                            contentDescription = "Inicio"
-                        )
-                    },
-                    label = { Text("Inicio", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = primaryBlue,
-                        selectedTextColor = primaryBlue
-                    )
-                )
-
-                NavigationBarItem(
-                    selected = selectedBottomTab == 1,
-                    onClick = {
-                        selectedBottomTab = 1
-                        onNavigateToChat()
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Outlined.ChatBubbleOutline,
-                            contentDescription = "Mensajes"
-                        )
-                    },
-                    label = { Text("Mensajes", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = primaryBlue,
-                        selectedTextColor = primaryBlue
-                    )
-                )
-
-                // CAMBIO: navegar a la pantalla Buscar.
-                NavigationBarItem(
-                    selected = selectedBottomTab == 2,
-                    onClick = {
-                        selectedBottomTab = 2
-                        onNavigateToSearch()
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = "Buscar"
-                        )
-                    },
-                    label = { Text("Buscar", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = primaryBlue,
-                        selectedTextColor = primaryBlue
-                    )
-                )
-
-                // CAMBIO: navegar a la pantalla Perfil.
-                NavigationBarItem(
-                    selected = selectedBottomTab == 3,
-                    onClick = {
-                        selectedBottomTab = 3
-                        onNavigateToProfile()
-                    },
-                    icon = {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = "Perfil"
-                        )
-                    },
-                    label = { Text("Perfil", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = primaryBlue,
-                        selectedTextColor = primaryBlue
-                    )
-                )
-
-                NavigationBarItem(
-                    selected = selectedBottomTab == 4,
-                    onClick = { selectedBottomTab = 4 },
-                    icon = {
-                        Icon(
-                            Icons.Default.Menu,
-                            contentDescription = "Menú"
-                        )
-                    },
-                    label = { Text("Menú", fontSize = 11.sp) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = primaryBlue,
-                        selectedTextColor = primaryBlue
-                    )
+            if (navController != null) {
+                BottomNavigationBar(navController = navController)
+            } else {
+                BottomNavigationBar(
+                    currentRoute = Screen.Home.route,
+                    onNavigate = onNavigate
                 )
             }
         },

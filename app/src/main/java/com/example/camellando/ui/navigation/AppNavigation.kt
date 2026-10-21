@@ -16,6 +16,14 @@ import com.example.camellando.ui.search.*
 fun AppNavigation() {
     val navController = rememberNavController()
     val homeViewModel: HomeViewModel = viewModel()
+    val navigateToHome: () -> Unit = {
+        navController.navigate(Screen.Home.route) {
+            popUpTo(Screen.Home.route) {
+                inclusive = false
+            }
+            launchSingleTop = true
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -62,9 +70,7 @@ fun AppNavigation() {
         // Crear una oferta
         composable(Screen.CreateOffer.route) {
             CreateOfferDialog(
-                onDismiss = {
-                    navController.popBackStack()
-                },
+                onDismiss = navigateToHome,
                 onOfertar = {
                     navController.navigate(Screen.OfferReceived.route)
                 }
@@ -78,6 +84,7 @@ fun AppNavigation() {
         composable(Screen.Home.route) {
             HomeScreen(
                 viewModel = homeViewModel,
+                navController = navController,
                 onNavigateToCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
                 },
@@ -95,6 +102,9 @@ fun AppNavigation() {
                 },
                 onNavigateToChat = {
                     navController.navigate(Screen.Chat.route)
+                },
+                onNavigateToOfferReceived = {
+                    navController.navigate(Screen.OfferReceived.route)
                 }
             )
         }
@@ -126,6 +136,7 @@ fun AppNavigation() {
 
         composable(Screen.Search.route) {
             SearchScreen(
+                navController = navController,
                 onNavigateHome = {
                     navController.navigate(Screen.Home.route)
                 },
@@ -152,42 +163,41 @@ fun AppNavigation() {
         // Oferta recibida
         composable(Screen.OfferReceived.route) {
             OfferReceivedDialog(
-                onDismiss = {
-                    navController.popBackStack()
-                },
+                onDismiss = navigateToHome,
                 onAceptarOferta = {
                     navController.navigate(Screen.AgreementReached.route)
                 },
                 onContraoferta = {
                     navController.navigate(Screen.CounterOffer.route)
                 },
-                onRechazarOferta = {
-                    navController.popBackStack()
-                }
+                onRechazarOferta = navigateToHome
             )
         }
 
         // Contraoferta
         composable(Screen.CounterOffer.route) {
-            CounterOfferDialog(
-                onDismiss = {
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(Screen.CounterOfferReceived.route) {
             CounterOfferReceivedDialog(
-                onDismiss = { navController.popBackStack() },
+                onDismiss = navigateToHome,
                 onAceptarContraoferta = {
                     navController.navigate(Screen.AgreementReached.route)
                 },
                 onContraoferta = {
                     navController.navigate(Screen.CreateOffer.route)
                 },
-                onRechazarContraoferta = {
-                    navController.navigate(Screen.OfferReceived.route)
-                }
+                onRechazarContraoferta = navigateToHome
+            )
+        }
+
+        composable(Screen.CounterOfferReceived.route) {
+            CounterOfferReceivedDialog(
+                onDismiss = navigateToHome,
+                onAceptarContraoferta = {
+                    navController.navigate(Screen.AgreementReached.route)
+                },
+                onContraoferta = {
+                    navController.navigate(Screen.CreateOffer.route)
+                },
+                onRechazarContraoferta = navigateToHome
             )
         }
 
@@ -204,15 +214,7 @@ fun AppNavigation() {
 
         composable(Screen.Chat.route) {
             ChatScreen(
-                onNavigate = { screen ->
-                    navController.navigate(screen.route) {
-                        popUpTo(Screen.Home.route) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                navController = navController,
                 onBack = {
                     navController.popBackStack()
                 }
@@ -221,7 +223,19 @@ fun AppNavigation() {
 
         // Acuerdo alcanzado al aceptar la oferta
         composable(Screen.AgreementReached.route) {
-            AgreementReachedDialog()
+            val navigateToHome = {
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Home.route) {
+                        inclusive = false
+                    }
+                    launchSingleTop = true
+                }
+            }
+
+            AgreementReachedDialog(
+                onDismiss = navigateToHome,
+                onReadyClicked = navigateToHome
+            )
         }
     }
 }

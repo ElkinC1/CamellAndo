@@ -1,28 +1,67 @@
-﻿package com.example.camellando.ui.components
+package com.example.camellando.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.camellando.ui.navigation.Screen
 
 @Composable
 fun BottomNavigationBar(
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Home.route
+
+    BottomNavigationBar(
+        currentRoute = currentRoute,
+        onNavigate = { screen ->
+            if (screen == Screen.Home) {
+                if (currentRoute != Screen.Home.route) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            } else {
+                if (currentRoute != screen.route) {
+                    navController.navigate(screen.route) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            }
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun BottomNavigationBar(
     currentRoute: String,
-    onNavigate: (Screen) -> Unit
+    onNavigate: (Screen) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val primaryBlue = Color(0xFF1E60F9)
 
     NavigationBar(
         containerColor = Color.White,
-        tonalElevation = 8.dp
+        tonalElevation = 8.dp,
+        modifier = modifier
     ) {
         // 1. Inicio
         NavigationBarItem(
@@ -54,30 +93,6 @@ fun BottomNavigationBar(
             onClick = { onNavigate(Screen.Search) },
             icon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
             label = { Text("Buscar", fontSize = 11.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = primaryBlue,
-                selectedTextColor = primaryBlue
-            )
-        )
-
-        // 4. Perfil
-        NavigationBarItem(
-            selected = currentRoute == Screen.ClientProfile.route || currentRoute == Screen.ProviderProfile.route,
-            onClick = { onNavigate(Screen.ClientProfile) },
-            icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
-            label = { Text("Perfil", fontSize = 11.sp) },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = primaryBlue,
-                selectedTextColor = primaryBlue
-            )
-        )
-
-        // 5. Menú
-        NavigationBarItem(
-            selected = false,
-            onClick = { /* Abrir menú lateral o pantalla */ },
-            icon = { Icon(Icons.Default.Menu, contentDescription = "Menú") },
-            label = { Text("Menú", fontSize = 11.sp) },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = primaryBlue,
                 selectedTextColor = primaryBlue

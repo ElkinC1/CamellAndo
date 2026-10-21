@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.camellando.data.mock.ChatMessage
 import com.example.camellando.data.mock.ChatPreview
 import com.example.camellando.data.mock.initialMockChats
@@ -34,6 +35,7 @@ private val TextMuted = Color(0xFF64748B)
 @Composable
 fun ChatScreen(
     modifier: Modifier = Modifier,
+    navController: NavController? = null,
     onNavigate: (Screen) -> Unit = {},
     onBack: (() -> Unit)? = null
 ) {
@@ -94,10 +96,14 @@ fun ChatScreen(
                 )
             },
             bottomBar = {
-                BottomNavigationBar(
-                    currentRoute = Screen.Chat.route,
-                    onNavigate = onNavigate
-                )
+                if (navController != null) {
+                    BottomNavigationBar(navController = navController)
+                } else {
+                    BottomNavigationBar(
+                        currentRoute = Screen.Chat.route,
+                        onNavigate = onNavigate
+                    )
+                }
             },
             containerColor = BackgroundGray
         ) { paddingValues ->
