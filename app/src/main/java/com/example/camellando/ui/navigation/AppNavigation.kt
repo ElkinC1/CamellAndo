@@ -46,7 +46,30 @@ fun AppNavigation() {
         }
 
         composable(Screen.Register.route) {
-            RegisterScreen()
+            RegisterScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToLogin = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Login.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onRegisterClientSuccess = {
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Login.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onRegisterProviderSuccess = {
+                    navController.navigate(Screen.ServiceProfileSetup.route)
+                }
+            )
         }
 
         composable(Screen.ServiceProfileSetup.route) {
@@ -66,6 +89,7 @@ fun AppNavigation() {
                 }
             )
         }
+
 
         // Crear una oferta
         composable(Screen.CreateOffer.route) {
