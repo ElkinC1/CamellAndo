@@ -21,7 +21,6 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import com.example.camellando.R
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.material.icons.outlined.Lock
@@ -31,16 +30,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
-import java.nio.file.WatchEvent
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel = viewModel(),
+    loginViewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
     val uiState by loginViewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.loginSucceeded) {
+        if (uiState.loginSucceeded) onLoginSuccess()
+    }
 
     Column(
         modifier = modifier
@@ -200,9 +202,7 @@ fun LoginScreen(
 
         Button(
             onClick = {
-                if (loginViewModel.onLoginClick()) {
-                    onLoginSuccess()
-                }
+                loginViewModel.onLoginClick()
             },
             modifier = Modifier
                 .fillMaxWidth()
