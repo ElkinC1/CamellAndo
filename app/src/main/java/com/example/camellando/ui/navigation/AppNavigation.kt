@@ -5,6 +5,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.camellando.data.di.AppContainer
+import com.example.camellando.data.di.AppViewModelFactory
 import com.example.camellando.ui.auth.*
 import com.example.camellando.ui.chat.*
 import com.example.camellando.ui.feed.*
@@ -15,6 +17,9 @@ import com.example.camellando.ui.search.*
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val loginViewModel: LoginViewModel = viewModel(
+        factory = AppViewModelFactory(AppContainer.authRepository)
+    )
     val homeViewModel: HomeViewModel = viewModel()
     val navigateToHome: () -> Unit = {
         navController.navigate(Screen.Home.route) {
@@ -31,6 +36,7 @@ fun AppNavigation() {
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
+                loginViewModel = loginViewModel,
                 onNavigateToRegister = {
                     navController.navigate(Screen.Register.route)
                 },
