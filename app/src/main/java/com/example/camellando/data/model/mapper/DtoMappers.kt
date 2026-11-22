@@ -22,6 +22,7 @@ import com.example.camellando.data.model.ServiceContract
 import com.example.camellando.data.model.ServiceContractStatus
 import com.example.camellando.data.model.UserReport
 import com.example.camellando.data.model.UserReportStatus
+import com.example.camellando.data.model.Notification
 import com.example.camellando.data.model.dto.ChatDto
 import com.example.camellando.data.model.dto.ChatMessageDto
 import com.example.camellando.data.model.dto.ContractReviewDto
@@ -31,6 +32,7 @@ import com.example.camellando.data.model.dto.PortfolioItemDto
 import com.example.camellando.data.model.dto.PortfolioItemImageDto
 import com.example.camellando.data.model.dto.ServiceContractDto
 import com.example.camellando.data.model.dto.UserReportDto
+import com.example.camellando.data.model.dto.NotificationDto
 
 fun ProfileDto.toDomain(): Profile =
     Profile(
@@ -161,5 +163,19 @@ fun UserReportDto.toDomain(): UserReport =
         reason = reason,
         details = details,
         status = UserReportStatus.valueOf(status),
+        createdAt = createdAt
+    )
+
+fun NotificationDto.toDomain(): Notification =
+    Notification(
+        id = id,
+        recipientId = recipientId,
+        actorId = actorId,
+        type = type,
+        title = title,
+        body = body,
+        relatedType = relatedType,
+        relatedId = relatedId,
+        isRead = isRead,
         createdAt = createdAt
     )
