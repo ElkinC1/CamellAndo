@@ -18,7 +18,7 @@ class SupabaseStorageRepository(
     ): Result<String> = repositorySafeCall {
         require(contentType.startsWith("image/")) { "El archivo debe ser una imagen." }
         supabase.storage.from(IMAGES_BUCKET).upload(path, bytes) {
-            upsert = false
+            upsert = true
             this.contentType = ContentType.parse(contentType)
         }
         path
@@ -32,14 +32,18 @@ class SupabaseStorageRepository(
         require(contentType == PDF_CONTENT_TYPE) { "El CV debe estar en formato PDF." }
         require(path.lowercase().endsWith(".pdf")) { "La ruta del CV debe terminar en .pdf." }
         supabase.storage.from(CV_BUCKET).upload(path, bytes) {
-            upsert = false
+            upsert = true
             this.contentType = ContentType.parse(contentType)
         }
         path
     }
 
-    override fun getPublicImageUrl(path: String): String =
-        supabase.storage.from(IMAGES_BUCKET).publicUrl(path)
+    override fun getPublicImageUrl(path: String): String {
+        if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("file://") || path.startsWith("/")) {
+            return path
+        }
+        return supabase.storage.from(IMAGES_BUCKET).publicUrl(path)
+    }
 
     override suspend fun createCvSignedUrl(
         path: String,

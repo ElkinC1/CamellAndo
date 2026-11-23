@@ -1,6 +1,7 @@
 package com.example.camellando.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -20,7 +21,6 @@ fun AppNavigation() {
     val loginViewModel: LoginViewModel = viewModel(
         factory = AppViewModelFactory(AppContainer.authRepository)
     )
-    val homeViewModel: HomeViewModel = viewModel()
     val navigateToHome: () -> Unit = {
         navController.navigate(Screen.Home.route) {
             popUpTo(Screen.Home.route) {
@@ -113,7 +113,6 @@ fun AppNavigation() {
 
         composable(Screen.Home.route) {
             HomeScreen(
-                viewModel = homeViewModel,
                 navController = navController,
                 onNavigateToCreatePost = {
                     navController.navigate(Screen.CreatePost.route)
@@ -159,8 +158,7 @@ fun AppNavigation() {
                 onCloseClick = {
                     navigateToHome()
                 },
-                onPublicarClick = { texto, fotos ->
-                    homeViewModel.agregarPublicacion(texto, fotos)
+                onPostCreated = {
                     navigateToHome()
                 }
             )

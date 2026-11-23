@@ -115,6 +115,13 @@ class SupabaseServicePostRepository(
                 .map { it.toDomain() }
         }
 
+    override suspend fun deletePostImage(imageId: String): Result<Unit> = repositorySafeCall {
+        supabase.from("post_images").delete {
+            filter { eq("id", imageId) }
+        }
+        Unit
+    }
+
     override suspend fun deletePost(postId: String): Result<Unit> = repositorySafeCall {
         supabase.from("service_posts").delete {
             filter { eq("id", postId) }

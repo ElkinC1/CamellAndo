@@ -19,5 +19,6 @@ interface ServicePostRepository {
     suspend fun updatePostStatus(postId: String, status: ServicePostStatus): Result<Unit>
     suspend fun addPostImage(postId: String, storagePath: String, position: Int): Result<PostImage>
     suspend fun getPostImages(postId: String): Result<List<PostImage>>
+    suspend fun deletePostImage(imageId: String): Result<Unit>
     suspend fun deletePost(postId: String): Result<Unit>
 }

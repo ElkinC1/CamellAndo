@@ -5,7 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.camellando.data.repository.AuthRepository
 import com.example.camellando.ui.auth.LoginViewModel
 
-/** Manual factory for ViewModels that require constructor dependencies. */
+/**
+ * Factory manual únicamente para ViewModels pendientes de migración.
+ * HomeViewModel y CreatePostViewModel se gestionan e inyectan mediante Hilt.
+ */
 class AppViewModelFactory(
     private val authRepository: AuthRepository
 ) : ViewModelProvider.Factory {
