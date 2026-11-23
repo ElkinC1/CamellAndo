@@ -35,7 +35,14 @@ class SupabaseProfileRepository(
                 bio = profile.bio,
                 avatarPath = profile.avatarPath,
                 cvPath = profile.cvPath,
-                cvVisible = profile.cvVisible
+                cvVisible = profile.cvVisible,
+                location = profile.location,
+                birthDate = profile.birthDate,
+                identification = profile.identification,
+                occupation = profile.occupation,
+                experienceYears = profile.experienceYears,
+                minPrice = profile.minPrice,
+                maxPrice = profile.maxPrice
             )
 
             supabase

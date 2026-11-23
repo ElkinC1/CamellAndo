@@ -1,8 +1,10 @@
 package com.example.camellando.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,8 +20,18 @@ import com.example.camellando.ui.search.*
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val authViewModelFactory = remember {
+        AppViewModelFactory(AppContainer.authRepository)
+    }
     val loginViewModel: LoginViewModel = viewModel(
-        factory = AppViewModelFactory(AppContainer.authRepository)
+        factory = authViewModelFactory
+    )
+    val registerViewModel: RegisterViewModel = viewModel(
+        factory = authViewModelFactory
+    )
+    val registerUiState by registerViewModel.uiState.collectAsStateWithLifecycle()
+    val serviceProfileSetupViewModel: ServiceProfileSetupViewModel = viewModel(
+        factory = authViewModelFactory
     )
     val navigateToHome: () -> Unit = {
         navController.navigate(Screen.Home.route) {
@@ -53,6 +65,7 @@ fun AppNavigation() {
 
         composable(Screen.Register.route) {
             RegisterScreen(
+                viewModel = registerViewModel,
                 onNavigateBack = {
                     navController.popBackStack()
                 },
@@ -80,12 +93,19 @@ fun AppNavigation() {
 
         composable(Screen.ServiceProfileSetup.route) {
             ServiceProfileSetupScreen(
+                viewModel = serviceProfileSetupViewModel,
+                isRegistering = registerUiState.isLoading,
+                registrationError = registerUiState.errorMessage,
+                registrationSucceeded = registerUiState.registerSucceeded &&
+                    registerUiState.successRole == com.example.camellando.data.model.UserRole.PROVIDER,
                 onBackClick = {
                     if (!navController.popBackStack()) {
                         navController.navigate(Screen.Register.route)
                     }
                 },
-                onRegistrarClick = {
+                onRegisterProvider = registerViewModel::registerProvider,
+                onRegistrationFinished = {
+                    registerViewModel.onRegistrationNavigationHandled()
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Login.route) {
                             inclusive = false

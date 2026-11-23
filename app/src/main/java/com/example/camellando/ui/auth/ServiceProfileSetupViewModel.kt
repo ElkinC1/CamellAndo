@@ -1,7 +1,7 @@
 package com.example.camellando.ui.auth
 
-import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.example.camellando.data.model.ProviderRegistrationDetails
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,11 +14,7 @@ class ServiceProfileSetupViewModel : ViewModel() {
 
     fun onOficioChanged(oficio: String) {
         _uiState.update {
-            it.copy(
-                oficioSeleccionado = oficio,
-                hayErrorOficio = false,
-                mensajeErrorGeneral = null
-            )
+            it.copy(oficioSeleccionado = oficio, hayErrorOficio = false, mensajeErrorGeneral = null)
         }
     }
 
@@ -35,11 +31,7 @@ class ServiceProfileSetupViewModel : ViewModel() {
     fun onPrecioMinChanged(precioMin: String) {
         _uiState.update { current ->
             calcularValidacionPrecios(
-                current.copy(
-                    precioMin = precioMin,
-                    haInteractuadoConPrecios = true,
-                    mensajeErrorGeneral = null
-                )
+                current.copy(precioMin = precioMin, haInteractuadoConPrecios = true)
             )
         }
     }
@@ -47,72 +39,57 @@ class ServiceProfileSetupViewModel : ViewModel() {
     fun onPrecioMaxChanged(precioMax: String) {
         _uiState.update { current ->
             calcularValidacionPrecios(
-                current.copy(
-                    precioMax = precioMax,
-                    haInteractuadoConPrecios = true,
-                    mensajeErrorGeneral = null
-                )
+                current.copy(precioMax = precioMax, haInteractuadoConPrecios = true)
             )
         }
     }
 
-    fun onArchivoCVSeleccionado(uri: Uri?) {
-        if (uri != null) {
-            _uiState.update {
-                it.copy(
-                    cvUri = uri,
-                    nombreArchivoCV = uri.lastPathSegment ?: "documento_seleccionado.pdf",
-                    subdescripcionCV = "Archivo adjuntado con éxito"
-                )
-            }
-        }
-    }
+    fun createRegistrationDetails(): ProviderRegistrationDetails? {
+        val current = calcularValidacionPrecios(
+            _uiState.value.copy(haInteractuadoConPrecios = true)
+        )
+        val minPrice = current.precioMin.toDoubleOrNull()
+        val maxPrice = current.precioMax.toDoubleOrNull()
+        val hasOccupationError = current.oficioSeleccionado.isBlank()
+        val hasExperienceError = current.experienciaSeleccionada.isBlank()
+        val hasPriceError = minPrice == null || maxPrice == null || minPrice < 0 || maxPrice <= minPrice
 
-    fun onRegistrarClick(): Boolean {
-        val state = _uiState.value
-        val estadoConPrecios = calcularValidacionPrecios(state.copy(haInteractuadoConPrecios = true))
-
-        val hayErrorOficio = estadoConPrecios.oficioSeleccionado.isBlank()
-        val hayErrorExperiencia = estadoConPrecios.experienciaSeleccionada.isBlank()
-        val hayErrorPrecios = estadoConPrecios.hayErrorPrecio ||
-                estadoConPrecios.precioMin.isBlank() ||
-                estadoConPrecios.precioMax.isBlank()
-
-        val tieneErrores = hayErrorOficio || hayErrorExperiencia || hayErrorPrecios
-
-        val mensajeGeneral = when {
-            hayErrorOficio && hayErrorExperiencia -> "Selecciona tu oficio y tiempo de experiencia."
-            hayErrorOficio -> "Debes seleccionar un oficio."
-            hayErrorExperiencia -> "Debes seleccionar tu tiempo de experiencia."
-            hayErrorPrecios -> estadoConPrecios.mensajeErrorPrecio ?: "Completa los precios correctamente."
+        val message = when {
+            hasOccupationError && hasExperienceError -> "Selecciona tu oficio y tiempo de experiencia."
+            hasOccupationError -> "Debes seleccionar un oficio."
+            hasExperienceError -> "Debes seleccionar tu tiempo de experiencia."
+            hasPriceError -> "Ingresa precios válidos: el mínimo debe ser menor que el máximo."
             else -> null
         }
 
-        _uiState.value = estadoConPrecios.copy(
-            hayErrorOficio = hayErrorOficio,
-            hayErrorExperiencia = hayErrorExperiencia,
-            mensajeErrorGeneral = if (tieneErrores) mensajeGeneral else null
+        _uiState.value = current.copy(
+            hayErrorOficio = hasOccupationError,
+            hayErrorExperiencia = hasExperienceError,
+            mensajeErrorGeneral = message
         )
 
-        return !tieneErrores
+        if (message != null) return null
+        return ProviderRegistrationDetails(
+            occupation = current.oficioSeleccionado,
+            experienceYears = current.experienciaSeleccionada,
+            minPrice = requireNotNull(minPrice),
+            maxPrice = requireNotNull(maxPrice)
+        )
     }
 
     private fun calcularValidacionPrecios(state: ServiceProfileSetupUiState): ServiceProfileSetupUiState {
-        val minVal = state.precioMin.toDoubleOrNull() ?: 0.0
-        val maxVal = state.precioMax.toDoubleOrNull() ?: 0.0
-        val estaVacio = state.precioMin.isBlank() || state.precioMax.isBlank()
-        val esMinMayor = state.precioMin.isNotBlank() && state.precioMax.isNotBlank() && minVal >= maxVal
-        val hayError = state.haInteractuadoConPrecios && (estaVacio || esMinMayor)
-        val mensajeError = when {
+        val minValue = state.precioMin.toDoubleOrNull()
+        val maxValue = state.precioMax.toDoubleOrNull()
+        val missingPrice = state.precioMin.isBlank() || state.precioMax.isBlank()
+        val invalidPrice = minValue == null || maxValue == null || minValue < 0 || maxValue <= minValue
+        val hasError = state.haInteractuadoConPrecios && (missingPrice || invalidPrice)
+        val message = when {
             !state.haInteractuadoConPrecios -> null
-            estaVacio -> "Los valores mínimo y máximo no pueden estar vacíos."
-            esMinMayor -> "El valor mínimo no puede ser mayor o igual que el máximo."
+            missingPrice -> "Los valores mínimo y máximo no pueden estar vacíos."
+            invalidPrice -> "El valor mínimo debe ser menor que el máximo y ambos deben ser válidos."
             else -> null
         }
 
-        return state.copy(
-            hayErrorPrecio = hayError,
-            mensajeErrorPrecio = mensajeError
-        )
+        return state.copy(hayErrorPrecio = hasError, mensajeErrorPrecio = message)
     }
 }

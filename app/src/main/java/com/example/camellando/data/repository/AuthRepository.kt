@@ -9,7 +9,14 @@ interface AuthRepository {
         email: String,
         password: String,
         displayName: String,
-        role: UserRole
+        role: UserRole,
+        location: String,
+        birthDate: String,
+        identification: String,
+        occupation: String? = null,
+        experienceYears: String? = null,
+        minPrice: Double? = null,
+        maxPrice: Double? = null
     ): Result<String>
 
     suspend fun signIn(email: String, password: String): Result<String>

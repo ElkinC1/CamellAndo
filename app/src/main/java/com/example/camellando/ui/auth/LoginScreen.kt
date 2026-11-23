@@ -21,8 +21,8 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
 import com.example.camellando.R
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -38,10 +38,13 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
-    val uiState by loginViewModel.uiState.collectAsState()
+    val uiState by loginViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.loginSucceeded) {
-        if (uiState.loginSucceeded) onLoginSuccess()
+        if (uiState.loginSucceeded) {
+            loginViewModel.onLoginNavigationHandled()
+            onLoginSuccess()
+        }
     }
 
     Column(

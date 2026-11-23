@@ -8,5 +8,10 @@ data class RegisterUiState(
     val identificacion: String = "",
     val correo: String = "",
     val contrasena: String = "",
-    val repetirContrasena: String = ""
+    val repetirContrasena: String = "",
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val registerSucceeded: Boolean = false,
+    val successRole: com.example.camellando.data.model.UserRole? = null,
+    val requiresEmailConfirmation: Boolean = false
 )

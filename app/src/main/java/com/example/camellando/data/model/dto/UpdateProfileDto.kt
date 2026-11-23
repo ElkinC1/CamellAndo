@@ -17,5 +17,22 @@ data class UpdateProfileDto(
     val cvPath: String?,
 
     @SerialName("cv_visible")
-    val cvVisible: Boolean
+    val cvVisible: Boolean,
+
+    val location: String? = null,
+
+    @SerialName("birth_date")
+    val birthDate: String? = null,
+
+    val identification: String? = null,
+    val occupation: String? = null,
+
+    @SerialName("experience_years")
+    val experienceYears: String? = null,
+
+    @SerialName("min_price")
+    val minPrice: Double? = null,
+
+    @SerialName("max_price")
+    val maxPrice: Double? = null
 )

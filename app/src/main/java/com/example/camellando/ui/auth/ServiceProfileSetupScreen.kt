@@ -1,11 +1,7 @@
 package com.example.camellando.ui.auth
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -38,11 +33,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,35 +45,52 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.camellando.data.model.ProviderRegistrationDetails
 
 @Composable
 fun ServiceProfileSetupScreen(
     modifier: Modifier = Modifier,
-    viewModel: ServiceProfileSetupViewModel = viewModel(),
+    viewModel: ServiceProfileSetupViewModel,
+    isRegistering: Boolean = false,
+    registrationError: String? = null,
+    registrationSucceeded: Boolean = false,
     onBackClick: () -> Unit = {},
-    onRegistrarClick: () -> Unit = {}
+    onRegisterProvider: (ProviderRegistrationDetails) -> Unit = {},
+    onRegistrationFinished: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(registrationSucceeded) {
+        if (registrationSucceeded) {
+            Toast.makeText(
+                context,
+                "Registro completado. Confirma tu correo antes de iniciar sesión.",
+                Toast.LENGTH_LONG
+            ).show()
+            onRegistrationFinished()
+        }
+    }
 
     ServiceProfileSetupContent(
         modifier = modifier,
-        uiState = uiState,
+        uiState = uiState.copy(
+            isLoading = isRegistering,
+            mensajeErrorGeneral = registrationError ?: uiState.mensajeErrorGeneral
+        ),
         onOficioChanged = viewModel::onOficioChanged,
         onExperienciaChanged = viewModel::onExperienciaChanged,
         onPrecioMinChanged = viewModel::onPrecioMinChanged,
         onPrecioMaxChanged = viewModel::onPrecioMaxChanged,
-        onArchivoCVSeleccionado = viewModel::onArchivoCVSeleccionado,
         onBackClick = onBackClick,
         onRegistrarClick = {
-            if (viewModel.onRegistrarClick()) {
-                onRegistrarClick()
-            }
+            viewModel.createRegistrationDetails()?.let(onRegisterProvider)
         }
     )
 }
@@ -91,7 +103,6 @@ fun ServiceProfileSetupContent(
     onExperienciaChanged: (String) -> Unit,
     onPrecioMinChanged: (String) -> Unit,
     onPrecioMaxChanged: (String) -> Unit,
-    onArchivoCVSeleccionado: (Uri?) -> Unit,
     onBackClick: () -> Unit,
     onRegistrarClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -99,12 +110,6 @@ fun ServiceProfileSetupContent(
     var expandedOficio by remember { mutableStateOf(false) }
     var expandedExperiencia by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
-
-    val launcherPdf = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri: Uri? ->
-        onArchivoCVSeleccionado(uri)
-    }
 
     Scaffold(
         modifier = modifier,
@@ -263,89 +268,18 @@ fun ServiceProfileSetupContent(
                     }
                 }
 
-                // 3. CARGAR CV (CARD DE ARCHIVO)
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "CARGAR CV",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.DarkGray
-                        )
-                        Text(
-                            text = "(Opcional)",
-                            fontSize = 12.sp,
-                            color = Color.Gray
-                        )
-                    }
-
-                    Card(
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F9FC)),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, Color(0xFFECEFF1), RoundedCornerShape(12.dp))
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(12.dp)
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(38.dp)
-                                        .background(Color(0xFFE3F2FD), RoundedCornerShape(8.dp)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Description,
-                                        contentDescription = null,
-                                        tint = Color(0xFF1E88E5)
-                                    )
-                                }
-                                Column {
-                                    Text(
-                                        text = uiState.nombreArchivoCV,
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = Color.DarkGray
-                                    )
-                                    Text(
-                                        text = uiState.subdescripcionCV,
-                                        fontSize = 11.sp,
-                                        color = Color.Gray
-                                    )
-                                }
-                            }
-
-                            Surface(
-                                shape = RoundedCornerShape(20.dp),
-                                color = Color.White,
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE0E0E0)),
-                                modifier = Modifier.clickable {
-                                    launcherPdf.launch(arrayOf("application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"))
-                                }
-                            ) {
-                                Text(
-                                    text = "Adjuntar",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    color = Color(0xFF2563EB),
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
-                                )
-                            }
-                        }
-                    }
+                // El CV es opcional y se adjunta desde el perfil, cuando la cuenta ya esté autenticada.
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F9FC)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = "El CV es opcional. Podrás adjuntarlo desde tu perfil después de confirmar tu correo e iniciar sesión.",
+                        color = Color(0xFF475569),
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(14.dp)
+                    )
                 }
 
                 // 4. RANGO DE PRECIOS
@@ -428,7 +362,7 @@ fun ServiceProfileSetupContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    enabled = !uiState.hayErrorPrecio,
+                    enabled = !uiState.hayErrorPrecio && !uiState.isLoading,
                     shape = RoundedCornerShape(14.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB))
                 ) {
@@ -437,7 +371,7 @@ fun ServiceProfileSetupContent(
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "Registrar",
+                            text = if (uiState.isLoading) "Guardando..." else "Registrar",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.White
@@ -465,7 +399,6 @@ private fun ServiceProfileSetupScreenPreview() {
             onExperienciaChanged = {},
             onPrecioMinChanged = {},
             onPrecioMaxChanged = {},
-            onArchivoCVSeleccionado = {},
             onBackClick = {},
             onRegistrarClick = {}
         )

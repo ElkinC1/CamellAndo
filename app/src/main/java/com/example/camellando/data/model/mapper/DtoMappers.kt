@@ -44,7 +44,14 @@ fun ProfileDto.toDomain(): Profile =
         accountStatus = AccountStatus.valueOf(accountStatus),
         cvPath = cvPath,
         cvVisible = cvVisible,
-        createdAt = createdAt
+        createdAt = createdAt,
+        location = location,
+        birthDate = birthDate,
+        identification = identification,
+        occupation = occupation,
+        experienceYears = experienceYears,
+        minPrice = minPrice,
+        maxPrice = maxPrice
     )
 
 fun ServicePostDto.toDomain(): ServicePost =

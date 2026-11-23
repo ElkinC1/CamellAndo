@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.WorkOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.camellando.data.model.UserRole
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +35,7 @@ import java.util.TimeZone
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
+    viewModel: RegisterViewModel,
     onNavigateBack: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},
     onRegisterClientSuccess: (String) -> Unit = {},
@@ -40,9 +43,7 @@ fun RegisterScreen(
 ) {
     val primaryBlue = Color(0xFF1E60F9)
     val context = LocalContext.current
-
-    // Estado del formulario
-    var state by remember { mutableStateOf(RegisterUiState()) }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     var isPasswordVisible by remember { mutableStateOf(false) }
     var expandedCanton by remember { mutableStateOf(false) }
     var showDatePicker by remember { mutableStateOf(false) }
@@ -62,7 +63,7 @@ fun RegisterScreen(
                                 timeZone = TimeZone.getTimeZone("UTC")
                             }
                             val fechaFormateada = formatter.format(Date(millis))
-                            state = state.copy(nacimiento = fechaFormateada)
+                            viewModel.onNacimientoChanged(fechaFormateada)
                         }
                         showDatePicker = false
                     }
@@ -77,6 +78,32 @@ fun RegisterScreen(
             }
         ) {
             DatePicker(state = datePickerState)
+        }
+    }
+
+    LaunchedEffect(state.registerSucceeded, state.successRole) {
+        if (state.registerSucceeded) {
+            if (state.requiresEmailConfirmation) {
+                Toast.makeText(
+                    context,
+                    "Cuenta creada. Confirma tu correo y luego inicia sesión.",
+                    Toast.LENGTH_LONG
+                ).show()
+                viewModel.onRegistrationNavigationHandled()
+                onNavigateToLogin()
+                return@LaunchedEffect
+            }
+            when (state.successRole) {
+                UserRole.CLIENT -> {
+                    viewModel.onRegistrationNavigationHandled()
+                    onRegisterClientSuccess("¡Usuario cliente registrado exitosamente!")
+                }
+                UserRole.PROVIDER -> {
+                    viewModel.onRegistrationNavigationHandled()
+                    onRegisterProviderSuccess()
+                }
+                null -> Unit
+            }
         }
     }
 
@@ -119,7 +146,7 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = state.nombre,
-                        onValueChange = { state = state.copy(nombre = it) },
+                        onValueChange = viewModel::onNombreChanged,
                         placeholder = { Text("Ej. Juan", color = Color(0xFF94A3B8), fontSize = 13.sp) },
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -133,7 +160,7 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = state.apellido,
-                        onValueChange = { state = state.copy(apellido = it) },
+                        onValueChange = viewModel::onApellidoChanged,
                         placeholder = { Text("Ej. Pérez", color = Color(0xFF94A3B8), fontSize = 13.sp) },
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -177,7 +204,7 @@ fun RegisterScreen(
                                 DropdownMenuItem(
                                     text = { Text(cantonSeleccionado) },
                                     onClick = {
-                                        state = state.copy(canton = cantonSeleccionado)
+                                        viewModel.onCantonChanged(cantonSeleccionado)
                                         expandedCanton = false
                                     }
                                 )
@@ -191,7 +218,7 @@ fun RegisterScreen(
                     Spacer(modifier = Modifier.height(4.dp))
                     OutlinedTextField(
                         value = state.nacimiento,
-                        onValueChange = { state = state.copy(nacimiento = it) },
+                        onValueChange = viewModel::onNacimientoChanged,
                         placeholder = { Text("DD/MM/AAAA", color = Color(0xFF94A3B8), fontSize = 12.sp) },
                         trailingIcon = {
                             IconButton(onClick = { showDatePicker = true }) {
@@ -216,7 +243,7 @@ fun RegisterScreen(
             Text("Identificación", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
             OutlinedTextField(
                 value = state.identificacion,
-                onValueChange = { state = state.copy(identificacion = it) },
+                onValueChange = viewModel::onIdentificacionChanged,
                 placeholder = { Text("1300000000", color = Color(0xFF94A3B8)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -230,7 +257,7 @@ fun RegisterScreen(
             Text("Correo", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
             OutlinedTextField(
                 value = state.correo,
-                onValueChange = { state = state.copy(correo = it) },
+                onValueChange = viewModel::onCorreoChanged,
                 placeholder = { Text("ejemplo@correo.com", color = Color(0xFF94A3B8)) },
                 leadingIcon = { Icon(Icons.Default.Mail, contentDescription = null, tint = Color(0xFF94A3B8)) },
                 modifier = Modifier.fillMaxWidth(),
@@ -245,7 +272,7 @@ fun RegisterScreen(
             Text("Contraseña", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
             OutlinedTextField(
                 value = state.contrasena,
-                onValueChange = { state = state.copy(contrasena = it) },
+                onValueChange = viewModel::onContrasenaChanged,
                 placeholder = { Text("••••••••", color = Color(0xFF94A3B8)) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF94A3B8)) },
                 trailingIcon = {
@@ -270,7 +297,7 @@ fun RegisterScreen(
             Text("Repetir contraseña", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color(0xFF334155))
             OutlinedTextField(
                 value = state.repetirContrasena,
-                onValueChange = { state = state.copy(repetirContrasena = it) },
+                onValueChange = viewModel::onRepetirContrasenaChanged,
                 placeholder = { Text("••••••••", color = Color(0xFF94A3B8)) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color(0xFF94A3B8)) },
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -286,28 +313,8 @@ fun RegisterScreen(
 
             // Botón 1: Registrar como cliente
             Button(
-                onClick = {
-                    // Validaciones de Campos Vacíos y Arroba
-                    val hayCamposVacios = state.nombre.isBlank() ||
-                            state.apellido.isBlank() ||
-                            state.canton == "Selecciona" ||
-                            state.nacimiento.isBlank() ||
-                            state.identificacion.isBlank() ||
-                            state.correo.isBlank() ||
-                            state.contrasena.isBlank() ||
-                            state.repetirContrasena.isBlank()
-
-                    if (hayCamposVacios) {
-                        Toast.makeText(context, "Un campo está vacío", Toast.LENGTH_SHORT).show()
-                    } else if (!state.correo.contains("@")) {
-                        Toast.makeText(context, "El correo debe contener un '@'", Toast.LENGTH_SHORT).show()
-                    } else if (state.contrasena != state.repetirContrasena) {
-                        Toast.makeText(context, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "¡Usuario cliente registrado exitosamente!", Toast.LENGTH_SHORT).show()
-                        onRegisterClientSuccess("¡Usuario cliente registrado exitosamente!")
-                    }
-                },
+                onClick = viewModel::registerClient,
+                enabled = !state.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -315,7 +322,7 @@ fun RegisterScreen(
                 colors = ButtonDefaults.buttonColors(containerColor = primaryBlue)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Registrar como cliente", fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    Text(if (state.isLoading) "Registrando..." else "Registrar como cliente", fontSize = 15.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
                 }
@@ -323,7 +330,10 @@ fun RegisterScreen(
 
             // Botón 2: Registrar como prestador de servicios
             OutlinedButton(
-                onClick = onRegisterProviderSuccess,
+                onClick = {
+                    if (viewModel.validateCommonFields()) onRegisterProviderSuccess()
+                },
+                enabled = !state.isLoading,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
@@ -336,11 +346,20 @@ fun RegisterScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Outlined.WorkOutline, contentDescription = null, tint = primaryBlue, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Registrar como prestador de servicios", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = primaryBlue)
+                    Text(if (state.isLoading) "Registrando..." else "Registrar como prestador de servicios", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = primaryBlue)
                 }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            state.errorMessage?.let { error ->
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 13.sp,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
